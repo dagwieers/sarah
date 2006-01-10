@@ -1,12 +1,48 @@
+DOWNLOADING ERRATA
+^^^^^^^^^^^^^^^^^^
 Sarah currently requires a stuffed directory of advisories from RHN as XML files.
 
 You can download these files automatically by using the aerrate.py script from
 Tim Rupp. Available from:
 
-	:pserver:anonymous@cdcvs.fnal.gov:/cvs/scientificlinux
+	cvs -d :pserver:anonymous@cdcvs.fnal.gov:/cvs/scientificlinux co aerrate
 
 And issuing the following script:
 
+	cd aerrate
 	for release in rh{21,el3,el4}as rh{21,el3,el4}es rh{21,el3,el4}ws rhel3{cluster,devsuite} rhel{3,4}-extras rh-desktop-{3,4} rh21aw rhshas; do
 		./aerrate.py --source=site --type=security --release=$release
 	done
+	cd -
+
+This will copy all errata as XML files into ./advisories/
+
+
+USING SARAH
+^^^^^^^^^^^
+sarah currently expects the advisories to be available from ./advisories/ as well. So making
+a symlink from aerrate.advisories to sarah/advisories is probably easiest.
+
+	ln -sf aerrate/advisories .
+
+Then to create an sqlite database out of these XML files, run:
+
+	./sarahdb.py
+
+You should now have a sarahdb.sqlite file in your current directory.
+To create some statistics from this database, use:
+
+	./sarahprint.py
+
+The sarahprint utility currently shows how to query the database(s). Not all information
+is currently available from the XML files or from RHN. Help is welcome.
+
+
+PROXY PROBLEMS ?
+^^^^^^^^^^^^^^^^
+If you're behind a proxy that only allows SSL Proxy access (CONNECT method) for HTTPS sites,
+you're currently out of luck. The urllib2 implementation of python only has the HTTPS GET
+method implemented. More information at:
+
+	https://devel.linux.duke.edu/bugzilla/show_bug.cgi?id=543
+	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/456195

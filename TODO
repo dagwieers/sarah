@@ -4,9 +4,9 @@ aeratta.py
   eg. 4 connections)
 + Allow to list a number of releases (eg. --release=rhel4as,rhel3as,rhel2.1as)
   and remember what advisories have already been scraped (recently)
-+ Use timestamp and HTTP HEAD requests to check for updates)
 + Allow to list all types of advisories (eg. --type=all or --type=critical,important)
-+ Fix proxy support
++ Use timestamp and HTTP HEAD requests to check for updates)
++ Fix SSL proxy support (CONNECT method) in urllib2
 + Validate XML file after writing (some files are corrupted/unfinished)
 + Make aerrate.py executable :)
 + A lot of files do not include <severity>

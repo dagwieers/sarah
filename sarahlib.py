@@ -1,12 +1,6 @@
 import os, sqlite, types
 
-dbase = {
-	'adv': 'sarahdb/Advisories.sqlite',
-	'ref': 'sarahdb/References.sqlite',
-	'rpm': 'sarahdb/RPMList.sqlite',
-	'pro': 'sarahdb/Products.sqlite',
-	'typ': 'sarahdb/Types.sqlite',
-}
+dbase = 'sarahdb.sqlite'
 
 headers = {
 #	'adv': ('advid', 'pushcount', 'severitylevel', 'issuedate', 'updatedate', 'typeshort', 'synopsis', 'description', 'topic', 'sender', 'version'),
@@ -17,10 +11,19 @@ headers = {
 	'typ': ('typeshort', 'type'),
 }
 
+dataset = {
+	'spec': { 'name': 'varchar(10) unique primary key', },
+	'info': { 'name': 'varchar(10) unique primary key', },
+}
+
 def sqlcreate(name):
 	'Return a database create SQL statement'
 	str = 'create table %s ( ' % name
-	for key in headers[name]: str += '%s varchar(10), ' % key
+	for key in headers[name]:
+		if dataset.has_key(name) and dataset[name].has_key(key):
+			str += '%s %s,' % (key, dataset[name][key])
+		else:   
+			str += '%s varchar(10), ' % key
 	return str.rstrip(', ') + ' )'
 
 def sqlinsert(name):
@@ -31,15 +34,18 @@ def sqlinsert(name):
 	for key in headers[name]: str += '"%%(%s)s", ' % key
 	return str.rstrip(', ') + ' )'
 
-def opendb(name, create=False):
+def opendb():
 	'Open a database and return references'
-	con = sqlite.connect(dbase[name])
+	con = sqlite.connect(dbase)
 	cur = con.cursor()
-	if create:
-		cur.execute(sqlcreate(name))
-	return (con, cur)
+	return con, cur
 
-def insertdb(cur, name, rec):
+def createtb(cur, name, create=False):
+	try: cur.execute('drop table "%s"' % name)
+	except: pass
+	cur.execute(sqlcreate(name))
+
+def insertrec(cur, name, rec):
 	'Insert a record in a database'
 	### Convert unicode to UTF-8
 	for key in rec.keys():

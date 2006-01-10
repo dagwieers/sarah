@@ -7,14 +7,14 @@ import xml.sax
 
 import sarahlib
 
-advcon, advcur = sarahlib.opendb('adv', create=True)
-refcon, refcur = sarahlib.opendb('ref', create=True)
-rpmcon, rpmcur = sarahlib.opendb('rpm', create=True)
-procon, procur = sarahlib.opendb('pro', create=True)
-typcon, typcur = sarahlib.opendb('typ', create=True)
-
-### Unbuffered sys.stdout
 sys.stdout = os.fdopen(1, 'w', 0)
+
+con, cur = sarahlib.opendb()
+sarahlib.createtb(cur, 'adv')
+sarahlib.createtb(cur, 'ref')
+sarahlib.createtb(cur, 'rpm')
+sarahlib.createtb(cur, 'pro')
+sarahlib.createtb(cur, 'typ')
 
 reader = Sax2.Reader()
 
@@ -28,6 +28,7 @@ for file in filelist:
 	except xml.sax._exceptions.SAXParseException:
 		print '**%s**' % os.path.basename(file),
 		continue
+
 	print os.path.basename(file),
 
 	next = True
@@ -48,11 +49,11 @@ for file in filelist:
 		elif walker.currentNode.tagName == 'type':
 			typrec['type'] = walker.currentNode.firstChild.data
 			advrec['typeshort'] = typrec['typeshort'] = walker.currentNode.getAttribute('short')
-			typcur.execute('select type from typ where typeshort = "%(typeshort)s"' % typrec)
-			typelist = [type for type, in typcur.fetchall()]
+			cur.execute('select type from typ where typeshort = "%(typeshort)s"' % typrec)
+			typelist = [type for type, in cur.fetchall()]
 			if not typelist:
-				sarahlib.insertdb(typcur, 'typ', typrec)
-				typcon.commit()
+				sarahlib.insertrec(cur, 'typ', typrec)
+				con.commit()
 			elif typrec['type'] not in typelist:
 				print "ERROR: Wrong type exists (%s not in %s)" % (typrec['type'], typelist)
 
@@ -98,14 +99,11 @@ for file in filelist:
 					if product != prorec['product']:
 						print "ERROR: Wrong product exists (%s != %s)" % prorec['product'], product
 			else:
-				sarahlib.insertdb(procur, 'pro', prorec)
-				procon.commit()
+				sarahlib.insertrec(cur, 'pro', prorec)
+				con.commit()
 		next = walker.nextNode()
-
-	if not advrec.has_key('severitylevel'):
-		advrec['severitylevel'] = 'unknown'
 
 #	print advrec
 
-	sarahlib.insertdb(advcur, 'adv', advrec)
-	advcon.commit()
+	sarahlib.insertrec(cur, 'adv', advrec)
+	con.commit()
