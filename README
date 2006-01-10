@@ -1,0 +1,12 @@
+Sarah currently requires a stuffed directory of advisories from RHN as XML files.
+
+You can download these files automatically by using the aerrate.py script from
+Tim Rupp. Available from:
+
+	:pserver:anonymous@cdcvs.fnal.gov:/cvs/scientificlinux
+
+And issuing the following script:
+
+	for release in rh{21,el3,el4}as rh{21,el3,el4}es rh{21,el3,el4}ws rhel3{cluster,devsuite} rhel{3,4}-extras rh-desktop-{3,4} rh21aw rhshas; do
+		./aerrate.py --source=site --type=security --release=$release
+	done

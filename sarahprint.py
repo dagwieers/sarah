@@ -18,8 +18,10 @@ sys.stdout = os.fdopen(1, 'w', 0)
 advcur.execute('select distinct advid from adv order by advid')
 print 'Number of advisories:', len(advcur.fetchall())
 
+advcur.execute('select distinct advid from adv where severitylevel = "critical"')
+print '\tcritical:', len(advcur.fetchall()),
 advcur.execute('select distinct advid from adv where severitylevel = "important"')
-print '\timportant:', len(advcur.fetchall()),
+print 'important:', len(advcur.fetchall()),
 advcur.execute('select distinct advid from adv where severitylevel = "moderate"')
 print 'moderate:', len(advcur.fetchall()),
 advcur.execute('select distinct advid from adv where severitylevel = "low"')
@@ -31,8 +33,7 @@ print
 typcur.execute('select typeshort from typ order by typeshort')
 print 'Number of types:', len(typcur.fetchall())
 
-### Print all
-advcur.execute('select * from adv order by advid')
-for all in advcur.fetchall():
-	print all
-
+### Debug database
+#advcur.execute('select * from adv order by advid')
+#for all in advcur.fetchall():
+#	print all

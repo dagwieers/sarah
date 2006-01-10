@@ -3,6 +3,7 @@
 import glob, sqlite, sys, re, os, string, shutil
 from xml.dom.ext.reader import Sax2
 from xml.dom.NodeFilter import NodeFilter
+import xml.sax
 
 import sarahlib
 
@@ -21,8 +22,13 @@ filelist = glob.glob('advisories/RHSA-*.xml')
 filelist.sort()
 
 for file in filelist:
-	doc = reader.fromStream(open(file))
-	walker = doc.createTreeWalker(doc.documentElement, NodeFilter.SHOW_ELEMENT, None, 0)
+	try:
+		doc = reader.fromStream(open(file))
+		walker = doc.createTreeWalker(doc.documentElement, NodeFilter.SHOW_ELEMENT, None, 0)
+	except xml.sax._exceptions.SAXParseException:
+		print '**%s**' % os.path.basename(file),
+		continue
+	print os.path.basename(file),
 
 	next = True
 	advrec = {}; prorec ={}; typrec = {}
@@ -99,7 +105,6 @@ for file in filelist:
 	if not advrec.has_key('severitylevel'):
 		advrec['severitylevel'] = 'unknown'
 
-	print advrec['advid'],
 #	print advrec
 
 	sarahlib.insertdb(advcur, 'adv', advrec)
