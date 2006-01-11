@@ -1,5 +1,5 @@
-aeratta.py
-^^^^^^^^^^
+aerrate.py: scraps rhn advisory information
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 + Add RHBA and RHEA support
 + Allow to list a number of releases (eg. --release=rhel4as,rhel3as,rhel2.1as)
   and remember what advisories have already been scraped (recently)
@@ -12,24 +12,31 @@ aeratta.py
 + Make aerrate.py executable :)
 
 
-sarah tools in general
-^^^^^^^^^^^^^^^^^^^^^^
-+ Command-line syntax for each of the programs
-
-
 sarahdb.py: advisory database
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++ Command-line syntax brainstorm
 + Support new Red Hat XML format (channel info, paragraphs, bugzilla)
-+ Export to CSV
-
++ Add RHBA and RHEA support
++ Export to CSV (to create graphs, stats)
 
 sarahinfo: statistical information
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++ Command-line syntax brainstorm
 + Show errata per architecture
 
+sarahrep: reporting tool  [TBD]
+^^^^^^^^^^^^^^^^^^^^^^^^
++ Mail out generic security reports
++ Creates change management report
 
-sarah: query advisory database
+sarahsql: SQL query tool
+^^^^^^^^^^^^^^^^^^^^^^^^
++ Command-line syntax brainstorm
++ Improve output formatting
+
+sarah: query advisory database  [TBD]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++ Command-line syntax brainstorm
 + Compare package-list (rpmqa output, rpmdb) against eratta (sqlite database)
   - Create change-request reports (containing all required updates,
     technical information, urgency, ...)

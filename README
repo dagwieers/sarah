@@ -11,9 +11,9 @@ And issuing the following script:
 
 	cd aerrate
 	for release in rh{el4,el3,21}{as,es,ws} rhel{4,3}-extras rh-desktop-{4,3} rhel3{cluster,devsuite} rh21aw rhshas; do
-		for type in security bugs enhancements; do
+		for type in security; do
 			echo "== $release / $type =="
-			./aerrate.py -r --source=site --type=$type --release=$release
+			python ./aerrate.py -r --source=site --type=$type --release=$release
 		done
 	done
 	cd -
