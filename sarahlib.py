@@ -5,25 +5,28 @@ dbase = 'sarahdb.sqlite'
 headers = {
 #	'adv': ('advid', 'pushcount', 'severitylevel', 'issuedate', 'updatedate', 'typeshort', 'synopsis', 'description', 'topic', 'sender', 'version'),
 	'adv': ('advid', 'pushcount', 'severitylevel', 'issuedate', 'updatedate', 'typeshort', 'synopsis', 'description', 'topic'),
-	'ref': ('advid', 'reftype', 'reference'),
+	'ref': ('advid', 'reftype', 'reference', 'cve'),
 	'rpm': ('advid', 'prodshort', 'arch', 'filename', 'md5'),
-	'pro': ('productshort', 'product'),
+	'pro': ('prodshort', 'product'),
 	'typ': ('typeshort', 'type'),
 }
 
-dataset = {
-	'spec': { 'name': 'varchar(10) unique primary key', },
-	'info': { 'name': 'varchar(10) unique primary key', },
+dataopts = {
+	'adv': { 'advid': 'unique primary key', },
+#	'ref': { 'reftype': 'unique primary key', },
+#	'rpm': { 'filename': 'unique primary key', },
+	'pro': { 'prodshort': 'unique primary key', },
+	'typ': { 'typeshort': 'unique primary key', },
 }
 
 def sqlcreate(name):
 	'Return a database create SQL statement'
 	str = 'create table %s ( ' % name
 	for key in headers[name]:
-		if dataset.has_key(name) and dataset[name].has_key(key):
-			str += '%s %s,' % (key, dataset[name][key])
-		else:   
-			str += '%s varchar(10), ' % key
+		ds = ''
+		if dataopts.has_key(name) and dataopts[name].has_key(key):
+			ds = dataopts[name][key]
+		str += '%s varchar(10) %s,' % (key, ds)
 	return str.rstrip(', ') + ' )'
 
 def sqlinsert(name):

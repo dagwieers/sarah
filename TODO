@@ -12,16 +12,22 @@ aeratta.py
 + A lot of files do not include <severity>
 
 
-sarahdb.py
-^^^^^^^^^^
+sarahdb.py: advisory database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 + Define interesting queries
 + Command-line model for browsing the databases
 + Export to CSV
 
 
-sarahprint
-^^^^^^^^^^
+sarahinfo: statistical information
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++ Show errata per architecture
+
+
+sarahquery: query advisory database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 + Compare package-list against eratta (sqlite database)
 + Create change-request reports (containing all required updates,
   technical information, urgency, ...)
 + Report alien packages (packages not coming from Red Hat)
++ Search for strings (like CAN or keywords)

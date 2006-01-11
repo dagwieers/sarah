@@ -10,18 +10,21 @@ Tim Rupp. Available from:
 And issuing the following script:
 
 	cd aerrate
-	for release in rh{21,el3,el4}as rh{21,el3,el4}es rh{21,el3,el4}ws rhel3{cluster,devsuite} rhel{3,4}-extras rh-desktop-{3,4} rh21aw rhshas; do
-		./aerrate.py --source=site --type=security --release=$release
+	for release in rh{el4,el3,21}{as,es,ws} rhel{4,3}-extras rh-desktop-{4,3} rhel3{cluster,devsuite} rh21aw rhshas; do
+		for type in security bugs enhancements; do
+			echo "== $release / $type =="
+			./aerrate.py -r --source=site --type=$type --release=$release
+		done
 	done
 	cd -
 
-This will copy all errata as XML files into ./advisories/
+This will copy all errata as XML files into ./aerrata/advisories/
 
 
 USING SARAH
 ^^^^^^^^^^^
-sarah currently expects the advisories to be available from ./advisories/ as well. So making
-a symlink from aerrate.advisories to sarah/advisories is probably easiest.
+sarah currently expects the advisories to be available from ./advisories/. So making
+a symlink from aerrate/advisories to ./advisories is probably easiest.
 
 	ln -sf aerrate/advisories .
 
@@ -32,10 +35,14 @@ Then to create an sqlite database out of these XML files, run:
 You should now have a sarahdb.sqlite file in your current directory.
 To create some statistics from this database, use:
 
-	./sarahprint.py
+	./sarahinfo.py
 
-The sarahprint utility currently shows how to query the database(s). Not all information
-is currently available from the XML files or from RHN. Help is welcome.
+The sarahinfo utility currently shows how to query the database. Not all information
+is currently available in the XML files. Red Hat will be releasing these XML files
+in the future with much more info.
+
+Help is welcome to extend sarah much further. The TODO file is the first stop for
+interesting parties.
 
 
 PROXY PROBLEMS ?
