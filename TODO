@@ -9,7 +9,6 @@ aeratta.py
 + Parallelize the download process (use HTTP Pipelining and use
   eg. 4 connections)
 + Fix SSL proxy support (CONNECT method) in urllib2
-+ Validate XML file after writing (some files are corrupted/unfinished)
 + Make aerrate.py executable :)
 
 
