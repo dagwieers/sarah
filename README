@@ -20,6 +20,8 @@ And issuing the following script:
 
 This will copy all errata as XML files into ./aerrata/advisories/
 
+Currently aerrate only implements security advisories, not bugs or enhancements.
+
 
 USING SARAH
 ^^^^^^^^^^^
@@ -40,6 +42,11 @@ To create some statistics from this database, use:
 The sarahinfo utility currently shows how to query the database. Not all information
 is currently available in the XML files. Red Hat will be releasing these XML files
 in the future with much more info.
+
+I also added sarahsql to allow to query the database on the commandline, you can
+things in bash, like:
+
+	./sarahsql.py 'select distinct filename from rpm where advid == "RHSA-2005:039" order by filename'
 
 Help is welcome to extend sarah much further. The TODO file is the first stop for
 interesting parties.
