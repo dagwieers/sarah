@@ -1,10 +1,7 @@
 #!/usr/bin/python
 
-import glob, sqlite, sys, re, os, string, shutil
+import sys, os, sqlite, string
 import sarahlib
-
-from xml.dom.ext.reader import Sax2
-from xml.dom.NodeFilter import NodeFilter
 
 sys.stdout = os.fdopen(1, 'w', 0)
 con, cur = sarahlib.opendb()

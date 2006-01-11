@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import glob, sqlite, sys, re, os, string, shutil
+import sys, os, glob, sqlite
 import sarahlib
 
 from xml.dom.ext.reader import Sax2
