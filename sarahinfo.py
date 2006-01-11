@@ -26,7 +26,10 @@ print
 cur.execute('select typeshort from typ order by typeshort')
 typelist = [e for e, in cur.fetchall()]
 print 'Number of types:', len(typelist)
-print '  ', string.join(typelist, ', ')
+print '  ',
+for type in typelist:
+	cur.execute('select distinct advid from adv where typeshort == "%s"' % type)
+	print '%s: %s  ' % (type, len(cur.fetchall()))
 print
 
 cur.execute('select prodshort from pro order by prodshort')
@@ -35,14 +38,9 @@ print 'Number of products:', len(prodlist)
 print '  ', string.join(prodlist, ', ')
 print
 
-print 'Distribution of advisories:'
 for prod in prodlist:
 	cur.execute('select distinct advid from rpm where prodshort == "%s"' % prod)
-	print '  ', prod, 'has', len(cur.fetchall()), 'advisories'
-print
-
-cur.execute('select distinct filename from rpm order by filename')
-print 'Number of files:', len(cur.fetchall())
+	print '     ', prod, 'has', len(cur.fetchall()), 'advisories'
 print
 
 cur.execute('select reftype from ref')
@@ -56,6 +54,10 @@ print '  ',
 for key in count.keys():
 	print '%s: %s  ' % (key, count[key]),
 print
+print
+
+cur.execute('select distinct filename from rpm order by filename')
+print 'Number of files:', len(cur.fetchall())
 print
 
 ### Calculate average length of datatypes

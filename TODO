@@ -1,21 +1,26 @@
 aeratta.py
 ^^^^^^^^^^
-+ Parallelize the download process (use HTTP Pipelining and use
-  eg. 4 connections)
++ Add RHBA and RHEA support
 + Allow to list a number of releases (eg. --release=rhel4as,rhel3as,rhel2.1as)
   and remember what advisories have already been scraped (recently)
 + Allow to list all types of advisories (eg. --type=all or --type=critical,important)
-+ Use timestamp and HTTP HEAD requests to check for updates)
++ Make aerrate smart about advisories already downloaded
++ Use timestamp and HTTP HEAD requests to check for updates
++ Parallelize the download process (use HTTP Pipelining and use
+  eg. 4 connections)
 + Fix SSL proxy support (CONNECT method) in urllib2
 + Validate XML file after writing (some files are corrupted/unfinished)
 + Make aerrate.py executable :)
-+ A lot of files do not include <severity>
+
+
+sarah tools in general
+^^^^^^^^^^^^^^^^^^^^^^
++ Command-line syntax for each of the programs
 
 
 sarahdb.py: advisory database
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+ Define interesting queries
-+ Command-line model for browsing the databases
++ Support new Red Hat XML format (channel info, paragraphs, bugzilla)
 + Export to CSV
 
 
@@ -24,10 +29,54 @@ sarahinfo: statistical information
 + Show errata per architecture
 
 
-sarahquery: query advisory database
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+ Compare package-list against eratta (sqlite database)
-+ Create change-request reports (containing all required updates,
-  technical information, urgency, ...)
-+ Report alien packages (packages not coming from Red Hat)
-+ Search for strings (like CAN or keywords)
+sarah: query advisory database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
++ Compare package-list (rpmqa output, rpmdb) against eratta (sqlite database)
+  - Create change-request reports (containing all required updates,
+    technical information, urgency, ...)
++ Report alien packages in rpmdb (packages not coming from Red Hat)
++ Search for strings (like CVE, bugzilla or other keywords)
++ Search for strings in rpmdb (like changelog, description)
+
+
+Other interesting ideas
+^^^^^^^^^^^^^^^^^^^^^^^
++ It would be useful to keep a record of:
+   * days from vulnerability discovery -> machine patched
+   * days from RH patch release -> machine patched
+   * date of patch install
+  then the information would help identify:
+   * machines most at risk
+   * machines most slowly patched.
+   * window of risk
++ Let me throw out some other ideas off of the top of my head, more or
+  less in the order of interest to me:
+   1. The ability to track the presence and versions of homegrown packages
+      in RPM format. We use a fair number of local packages, and I would like
+      to be able to keep track of those through the same interface.
+   2. The ability to track the presence and version of arbitrary software
+      packages installed from source or in other formats. For instance, we
+      have installed software from source for various reasons for ourselves
+      and our customers (apache, postgres, custom apps, etc.). When a serious
+      vulnerability comes out for apache 2.0.54 and everything before, I'd
+      like to able to look in one location and find all the machines which
+      are running
+      Obviously, there are some serious issues with this approach
+      (particularly with maintenance). Still, it would be nice to be able to
+      update the RHSA tracking tool when you install or upgrade software with
+      something like "dag2date --initial-installation --name apache-custom
+      --version 2.0.54" so that it would appear in the RHSA tracking tool.
+      (And yes, if you could track homegrown packages I could track source
+      installations by munging the RPM database.)
+   3. Addition of errata for homegrown packages. We obviously can't expect
+      Red Hat to provide errata for them, but it would still be nice to track
+      them.
+   4. The ability to use this tool to track packages on any RPM-based
+      machine. It would be great to use the same tool over multiple
+      distributions. Additionally, I've created RPM's for both Solaris and
+      AIX, which would be nice to track as well.
+   5. The ability to create plugins for this tool in order to add arbitrary
+      packages. For instance, you could create a plugin on Solaris that uses
+      pkginfo to gather package information or lslpp on AIX. So if someone
+      finds a new sshd vulnerability, I could look at one interface and find
+      all affected machines.

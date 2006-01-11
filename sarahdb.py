@@ -114,6 +114,7 @@ for file in filelist:
 					rpmrec = advrec
 					rpmrec['arch'] = walker.currentNode.getAttribute('arch')
 					rpmrec['prodshort'] = prorec['prodshort']
+					### FIXME: Do proper nested parsing
 					next = walker.nextNode()
 					while walker.currentNode.tagName == 'filename':
 						rpmrec['filename'] = walker.currentNode.firstChild.data
@@ -121,7 +122,6 @@ for file in filelist:
 					while walker.currentNode.tagName == 'sum':
 						rpmrec['md5'] = walker.currentNode.firstChild.data
 						next = walker.nextNode()
-					### FIXME: Create a unique insert function
 					sarahlib.insertrec(cur, 'rpm', rpmrec)
 				continue
 				con.commit()
