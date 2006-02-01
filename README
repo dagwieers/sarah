@@ -5,7 +5,7 @@ Sarah currently requires a stuffed directory of advisories from RHN as XML files
 You can download these files automatically by using the aerrate.py script from
 Tim Rupp. Available from:
 
-	cvs -d :pserver:anonymous@cdcvs.fnal.gov:/cvs/scientificlinux co aerrate
+	svn co http://caphrim.net/svn/fermi/aerrate/trunk aerrate
 
 And issuing the following script:
 
@@ -64,3 +64,14 @@ method implemented. More information at:
 
 	https://devel.linux.duke.edu/bugzilla/show_bug.cgi?id=543
 	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/456195
+
+
+MORE INFORMATION
+^^^^^^^^^^^^^^^^
+You can find more information about errata and errata classification at:
+
+	http://www.redhat.com/security/updates/classification/
+
+A life RSS feed to the latest security errata is available from:
+
+	http://rhn.redhat.com/rpc/recent-errata.pxt
