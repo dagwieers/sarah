@@ -3,12 +3,11 @@ import os, sqlite, types
 dbase = 'sarahdb.sqlite'
 
 headers = {
-#	'adv': ('advid', 'pushcount', 'severitylevel', 'issuedate', 'updatedate', 'typeshort', 'synopsis', 'description', 'topic', 'sender', 'version'),
-	'adv': ('advid', 'pushcount', 'severitylevel', 'issuedate', 'updatedate', 'typeshort', 'synopsis', 'description', 'topic'),
-	'ref': ('advid', 'reftype', 'reference', 'cve'),
+#	'adv': ('advid', 'pushcount', 'severitylevel', 'issuedate', 'updatedate', 'type', 'synopsis', 'description', 'topic', 'sender', 'version'),
+	'adv': ('advid', 'pushcount', 'severitylevel', 'issuedate', 'updatedate', 'type', 'synopsis', 'description', 'topic'),
+	'ref': ('advid', 'reftype', 'reference', 'id', 'summary'),
 	'rpm': ('advid', 'prodshort', 'arch', 'filename', 'md5'),
 	'pro': ('prodshort', 'product'),
-	'typ': ('typeshort', 'type'),
 }
 
 dataopts = {
@@ -16,7 +15,6 @@ dataopts = {
 #	'ref': { 'reftype': 'unique primary key', },
 #	'rpm': { 'filename': 'unique primary key', },
 	'pro': { 'prodshort': 'unique primary key', },
-	'typ': { 'typeshort': 'unique primary key', },
 }
 
 def sqlcreate(name):

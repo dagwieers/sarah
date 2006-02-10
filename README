@@ -72,6 +72,15 @@ You can find more information about errata and errata classification at:
 
 	http://www.redhat.com/security/updates/classification/
 
-A life RSS feed to the latest security errata is available from:
+A live RSS feed to the latest security errata is available from:
 
 	http://rhn.redhat.com/rpc/recent-errata.pxt
+
+Some information and statistics from the Red Hat security team:
+
+	http://people.redhat.com/mjc/
+
+General security information:
+
+	http://cve.mitre.org/
+	http://oval.mitre.org/
