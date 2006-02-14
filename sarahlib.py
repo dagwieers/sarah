@@ -17,6 +17,15 @@ dataopts = {
 	'pro': { 'prodshort': 'unique primary key', },
 }
 
+
+### Build insert strings for each database
+insertstr = { }
+for name in headers.keys():
+	insertstr[name] = 'insert into %s ( ' % name
+	for key in headers[name]: insertstr[name] += '%s, ' % key
+	insertstr[name] = insertstr[name].rstrip(', ') + ' ) values ( ' + '%s, ' * len(headers[name])
+	insertstr[name] = insertstr[name].rstrip(', ') + ' )'
+
 def sqlcreate(name):
 	'Return a database create SQL statement'
 	str = 'create table %s ( ' % name
@@ -27,13 +36,13 @@ def sqlcreate(name):
 		str += '%s varchar(10) %s,' % (key, ds)
 	return str.rstrip(', ') + ' )'
 
-def sqlinsert(name):
-	'Return a database insert SQL statement'
-	str = 'insert into %s ( ' % name
-	for key in headers[name]: str += '%s, ' % key
-	str = str.rstrip(', ') + ' ) values ( '
-	for key in headers[name]: str += '"%%(%s)s", ' % key
-	return str.rstrip(', ') + ' )'
+#def sqlinsert(name):
+#	'Return a database insert SQL statement'
+#	str = 'insert into %s ( ' % name
+#	for key in headers[name]: str += '%s, ' % key
+#	str = str.rstrip(', ') + ' ) values ( '
+#	for key in headers[name]: str += '"%%(%s)s", ' % key
+#	return str.rstrip(', ') + ' )'
 
 def opendb():
 	'Open a database and return references'
@@ -48,8 +57,14 @@ def createtb(cur, name, create=False):
 
 def insertrec(cur, name, rec):
 	'Insert a record in a database'
-	### Convert unicode to UTF-8
-	for key in rec.keys():
+	global insertstr
+
+	values = []
+	for key in headers[name]:
+		### Convert unicode to UTF-8
 		if isinstance(rec[key], types.UnicodeType):
 			rec[key] = rec[key].encode('utf-8')
-	cur.execute(sqlinsert(name) % rec)
+		values.append(rec[key])
+#	print insertstr[name]
+#	print values
+	cur.execute(insertstr[name], values)

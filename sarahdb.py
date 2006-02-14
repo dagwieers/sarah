@@ -18,7 +18,8 @@ sarahlib.createtb(cur, 'pro')
 reader = Sax2.Reader()
 
 filelist = glob.glob('advisories/RH?A-*.xml')
-#filelist = glob.glob('advisories/RHSA-2005-839.xml')
+#filelist = glob.glob('advisories/RHSA-*.xml')
+#filelist = ['advisories/RHSA-2005-791.xml', ]
 filelist.sort()
 
 for file in filelist:
@@ -65,28 +66,34 @@ for file in filelist:
 				next = walker.nextNode()
 				while walker.currentNode.tagName == 'reference':
 					refrec = advrec.copy()
-					refrec['reftype'] = walker.currentNode.getAttribute('type')
-					if refrec['reftype'] == 'self':
+
+					if walker.currentNode.hasAttribute('type'):
+						refrec['reftype'] = walker.currentNode.getAttribute('type')
+
+					if walker.currentNode.hasAttribute('href'):
 						refrec['reference'] = walker.currentNode.getAttribute('href')
-						refrec['id'] = advrec['advid']
-						refrec['summary'] = None
-					elif refrec['reftype'] == 'cve':
-						refrec['reference'] = walker.currentNode.getAttribute('href')
-						refrec['id'] = walker.currentNode.firstChild.firstChild.data
-						refrec['summary'] = None
-					elif refrec['reftype'] == 'bugzilla':
-						refrec['reference'] = walker.currentNode.getAttribute('href')
-						refrec['id'] = walker.currentNode.firstChild.firstChild.data
-						### FIXME: capture the summary as well, when available
-# <reference type="bugzilla" href="http://bugzilla.redhat.com/179171"><bugzilla>179171</bugzilla><summary>CVE-2005-4134 Very long topic history.dat DoS</summary></reference>
-						refrec['summary'] = None
-					else:
-						refrec['reference'] = None
-						refrec['id'] = None
-						refrec['summary'] = None
-					sarahlib.insertrec(cur, 'ref', refrec)
-					con.commit()
+
 					next = walker.nextNode()
+					while walker.currentNode.tagName in ('advisory', 'bugzilla', 'cve', 'summary'):
+						if walker.currentNode.tagName in ('advisory', 'bugzilla', 'cve'):
+							refrec['id'] = walker.currentNode.firstChild.data
+						elif walker.currentNode.tagName == 'summary':
+							refrec['summary'] = walker.currentNode.firstChild.data
+						else:
+							raise 'Unknown tag in reference node'
+						next = walker.nextNode()
+
+					if refrec['reftype'] == 'self':
+						refrec['id'] = advrec['advid']
+
+					if not refrec.has_key('summary'):
+						refrec['summary'] = None
+
+					if not refrec.has_key('id'):
+						refrec['id'] = None
+
+					sarahlib.insertrec(cur, 'ref', refrec)
+				con.commit()
 				continue
 	
 			elif walker.currentNode.tagName == 'topic':
@@ -108,7 +115,7 @@ for file in filelist:
 					except: pass
 					next = walker.nextNode()
 					while walker.currentNode.tagName == 'file':
-						rpmrec = advrec
+						rpmrec = advrec.copy()
 						rpmrec['arch'] = walker.currentNode.getAttribute('arch')
 						rpmrec['prodshort'] = prorec['prodshort']
 						rpmrec['channel'] = []
