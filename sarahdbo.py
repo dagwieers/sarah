@@ -7,6 +7,11 @@ from xml.dom.ext.reader import Sax2
 from xml.dom.NodeFilter import NodeFilter
 import xml.sax
 
+def handle_walker(walker):
+	next = walker.nextNode()
+	node = walker.currentNode
+	return node, next
+
 sys.stdout = os.fdopen(1, 'w', 0)
 
 con, cur = sarahlib.opendb()
@@ -28,70 +33,71 @@ for file in filelist:
 		walker = doc.createTreeWalker(doc.documentElement, NodeFilter.SHOW_ELEMENT, None, 0)
 
 		next = True
+		node = walker.currentNode
 		advrec = {};
 		while next is not None:
-#			print walker.currentNode.tagName
+#			print node.tagName
 	
-			if walker.currentNode.tagName == 'advisory':
-				advrec['sender'] = walker.currentNode.getAttribute('sender')
-				advrec['version'] = walker.currentNode.getAttribute('version')
+			if node.tagName == 'advisory':
+				advrec['sender'] = node.getAttribute('sender')
+				advrec['version'] = node.getAttribute('version')
 	
-			elif walker.currentNode.tagName == 'id':
-				advrec['advid'] = walker.currentNode.firstChild.data
+			elif node.tagName == 'id':
+				advrec['advid'] = node.firstChild.data
 	
-			elif walker.currentNode.tagName == 'pushcount':
-				advrec['pushcount'] = int(walker.currentNode.firstChild.data)
+			elif node.tagName == 'pushcount':
+				advrec['pushcount'] = int(node.firstChild.data)
 	
-			elif walker.currentNode.tagName == 'type':
-				advrec['type'] = walker.currentNode.getAttribute('short')
+			elif node.tagName == 'type':
+				advrec['type'] = node.getAttribute('short')
 
-			elif walker.currentNode.tagName == 'keywords':
-				if hasattr(walker.currentNode.firstChild, 'data'):
-					advrec['keywords'] = walker.currentNode.firstChild.data
+			elif node.tagName == 'keywords':
+				if hasattr(node.firstChild, 'data'):
+					advrec['keywords'] = node.firstChild.data
 
-			elif walker.currentNode.tagName == 'obsoletes':
-				advrec['obsoletes'] = walker.currentNode.firstChild.data
+			elif node.tagName == 'obsoletes':
+				advrec['obsoletes'] = node.firstChild.data
 
-			elif walker.currentNode.tagName == 'group':
-				advrec['rhgroup'] = walker.currentNode.getAttribute('name')
+			elif node.tagName == 'group':
+				advrec['rhgroup'] = node.getAttribute('name')
 
-			elif walker.currentNode.tagName == 'severity':
-				if walker.currentNode.hasAttribute('level'):
-					advrec['severity'] = walker.currentNode.getAttribute('level')
-				elif walker.currentNode.firstChild.data:
-					advrec['severity'] = walker.currentNode.firstChild.data
+			elif node.tagName == 'severity':
+				if node.hasAttribute('level'):
+					advrec['severity'] = node.getAttribute('level')
+				elif node.firstChild.data:
+					advrec['severity'] = node.firstChild.data
 				else:
 					advrec['severity'] = 'error'
 	
-			elif walker.currentNode.tagName == 'synopsis':
-				advrec['synopsis'] = walker.currentNode.firstChild.data
+			elif node.tagName == 'synopsis':
+				advrec['synopsis'] = node.firstChild.data
 	
-			elif walker.currentNode.tagName == 'issued':
-				advrec['issued'] = walker.currentNode.getAttribute('date')
+			elif node.tagName == 'issued':
+				advrec['issued'] = node.getAttribute('date')
 	
-			elif walker.currentNode.tagName == 'updated':
-				advrec['updated'] = walker.currentNode.getAttribute('date')
+			elif node.tagName == 'updated':
+				advrec['updated'] = node.getAttribute('date')
 	
-			elif walker.currentNode.tagName == 'references':
-				next = walker.nextNode()
-				while walker.currentNode.tagName == 'reference':
+			elif node.tagName == 'references':
+				node, next = handle_walker(walker)
+				while node.tagName == 'reference':
 					refrec = advrec.copy()
 
-					if walker.currentNode.hasAttribute('type'):
-						refrec['reftype'] = walker.currentNode.getAttribute('type')
+					if node.hasAttribute('type'):
+						refrec['reftype'] = node.getAttribute('type')
 
-					if walker.currentNode.hasAttribute('href'):
-						refrec['reference'] = walker.currentNode.getAttribute('href')
+					if node.hasAttribute('href'):
+						refrec['reference'] = node.getAttribute('href')
 
-					next = walker.nextNode()
-					while walker.currentNode.tagName in ('advisory', 'bugzilla', 'cve', 'summary'):
-						if walker.currentNode.tagName in ('advisory', 'bugzilla', 'cve'):
-							refrec['refid'] = walker.currentNode.firstChild.data
-						elif walker.currentNode.tagName == 'summary':
-							refrec['summary'] = walker.currentNode.firstChild.data
+					node, next = handle_walker(walker)
+					while node.tagName in ('advisory', 'bugzilla', 'cve', 'summary'):
+						if node.tagName in ('advisory', 'bugzilla', 'cve'):
+							refrec['refid'] = node.firstChild.data
+						elif node.tagName == 'summary':
+							refrec['summary'] = node.firstChild.data
 						else:
-							raise 'Unknown tag <%s> in reference node' % walker.currentNode.tagName
-						next = walker.nextNode()
+							raise 'Unknown tag <%s> in reference node' % node.tagName
+						node, next = handle_walker(walker)
 
 					if refrec['reftype'] == 'self':
 						refrec['refid'] = advrec['advid']
@@ -106,56 +112,58 @@ for file in filelist:
 				con.commit()
 				continue
 	
-			elif walker.currentNode.tagName == 'topic':
-				advrec['topic'] = walker.currentNode.firstChild.data
+			elif node.tagName == 'topic':
+				advrec['topic'] = node.firstChild.data
 	
-			elif walker.currentNode.tagName == 'description':
-				advrec['description'] = walker.currentNode.firstChild.data
+			elif node.tagName == 'description':
+				advrec['description'] = node.firstChild.data
 	
-			elif walker.currentNode.tagName == 'rpmlist':
-				next = walker.nextNode()
-				while walker.currentNode.tagName == 'product':
+			elif node.tagName == 'rpmlist':
+				node, next = handle_walker(walker)
+				while node.tagName == 'product':
 					prorec = advrec.copy()
-					prorec['prodshort'] = walker.currentNode.getAttribute('short')
+					prorec['prodshort'] = node.getAttribute('short')
 					### FIXME: Do proper nested parsing
-					next = walker.nextNode()
-					prorec['product'] = walker.currentNode.firstChild.data
+					node, next = handle_walker(walker)
+					prorec['product'] = node.firstChild.data
 					### FIXME: Create a unique insert function
 					try: sarahlib.insertrec(cur, 'pro', prorec)
 					except: pass
-					next = walker.nextNode()
-					while walker.currentNode.tagName == 'file':
+					node, next = handle_walker(walker)
+					while node.tagName == 'file':
 						rpmrec = advrec.copy()
-						rpmrec['arch'] = walker.currentNode.getAttribute('arch')
+						rpmrec['arch'] = node.getAttribute('arch')
 						rpmrec['prodshort'] = prorec['prodshort']
 						rpmrec['channels'] = []
 						### FIXME: Do proper nested parsing
-						next = walker.nextNode()
-						while walker.currentNode.tagName in ('filename', 'sum', 'channel'):
-							if walker.currentNode.tagName == 'filename':
-								rpmrec['filename'] = walker.currentNode.firstChild.data
-							elif walker.currentNode.tagName == 'sum':
-								rpmrec['md5'] = walker.currentNode.firstChild.data
-							elif walker.currentNode.tagName == 'channel':
-								rpmrec['channels'].append(walker.currentNode.getAttribute('name'))
+						node, next = handle_walker(walker)
+						while node.tagName in ('filename', 'sum', 'channel'):
+							if node.tagName == 'filename':
+								rpmrec['filename'] = node.firstChild.data
+							elif node.tagName == 'sum':
+								rpmrec['md5'] = node.firstChild.data
+							elif node.tagName == 'channel':
+								rpmrec['channels'].append(node.getAttribute('name'))
 							else:
-								raise 'Unknown tag <%s> in file node' % walker.currentNode.tagName
-							next = walker.nextNode()
+								raise 'Unknown tag <%s> in file node' % node.tagName
+							node, next = handle_walker(walker)
 						sarahlib.insertrec(cur, 'rpm', rpmrec)
 				con.commit()
 				continue
 
-			elif walker.currentNode.tagName in ('a', 'contact', 'p', 'product', 'rights', 'rpmtext', 'solution'):
+			elif node.tagName in ('a', 'contact', 'p', 'product', 'rights', 'rpmtext', 'solution'):
 				pass
 
 			else:
-				print 'Unknown tag <%s> in advisory node' % str(walker.currentNode.tagName)
+				print 'Unknown tag <%s> in advisory node' % str(node.tagName)
 	
-			next = walker.nextNode()
+			node, next = handle_walker(walker)
 
 		### RHBAs and RHEAs do not have a severity level
 		if advrec['type'] in ('RHBA', 'RHEA'):
 			advrec['severity'] = None
+		if not advrec.has_key('severity'):
+			advrec['severity'] = 'unknown'
 
 		if not advrec.has_key('severity'): advrec['severity'] = 'unknown'
 		if not advrec.has_key('rhgroup'): advrec['rhgroup'] = None
