@@ -100,7 +100,7 @@ print
 #for all in cur.fetchall():
 #	print all
 
-#cur.execute('select distinct advid from adv where severitylevel = "unknown" order by advid')
+#cur.execute('select distinct advid from adv where severity = "unknown" order by advid')
 #print cur.fetchall()
 
 #cur.execute('select * from pro')

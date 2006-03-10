@@ -155,9 +155,9 @@ for file in filelist:
 
 		### RHBAs and RHEAs do not have a severity level
 		if advrec['type'] in ('RHBA', 'RHEA'):
-			advrec['severitylevel'] = None
+			advrec['severity'] = None
 
-		if not advrec.has_key('severitylevel'): advrec['severitylevel'] = 'unknown'
+		if not advrec.has_key('severity'): advrec['severity'] = 'unknown'
 		if not advrec.has_key('rhgroup'): advrec['rhgroup'] = None
 		if not advrec.has_key('keywords'): advrec['keywords'] = None
 		if not advrec.has_key('obsoletes'): advrec['obsoletes'] = None

@@ -50,7 +50,7 @@ things in bash, like:
         ./sarahsql.py 'select distinct filename from rpm where advid == "RHSA-2005:039" order by filename'
 
         ### Show last 10 updated advisories
-        ./sarahsql.py 'select advid, issuedate, updatedate, severitylevel from adv order by updatedate' | tail
+        ./sarahsql.py 'select advid, issuedate, updatedate, severity from adv order by updatedate' | tail
 
 Help is welcome to extend sarah much further. The TODO file is the first stop for
 interesting parties.
