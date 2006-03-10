@@ -45,22 +45,32 @@ for file in filelist:
 			elif walker.currentNode.tagName == 'type':
 				advrec['type'] = walker.currentNode.getAttribute('short')
 
+			elif walker.currentNode.tagName == 'keywords':
+				if hasattr(walker.currentNode.firstChild, 'data'):
+					advrec['keywords'] = walker.currentNode.firstChild.data
+
+			elif walker.currentNode.tagName == 'obsoletes':
+				advrec['obsoletes'] = walker.currentNode.firstChild.data
+
+			elif walker.currentNode.tagName == 'group':
+				advrec['rhgroup'] = walker.currentNode.getAttribute('name')
+
 			elif walker.currentNode.tagName == 'severity':
 				if walker.currentNode.hasAttribute('level'):
-					advrec['severitylevel'] = walker.currentNode.getAttribute('level')
+					advrec['severity'] = walker.currentNode.getAttribute('level')
 				elif walker.currentNode.firstChild.data:
-					advrec['severitylevel'] = walker.currentNode.firstChild.data
+					advrec['severity'] = walker.currentNode.firstChild.data
 				else:
-					advrec['severitylevel'] = 'error'
+					advrec['severity'] = 'error'
 	
 			elif walker.currentNode.tagName == 'synopsis':
 				advrec['synopsis'] = walker.currentNode.firstChild.data
 	
 			elif walker.currentNode.tagName == 'issued':
-				advrec['issuedate'] = walker.currentNode.getAttribute('date')
+				advrec['issued'] = walker.currentNode.getAttribute('date')
 	
 			elif walker.currentNode.tagName == 'updated':
-				advrec['updatedate'] = walker.currentNode.getAttribute('date')
+				advrec['updated'] = walker.currentNode.getAttribute('date')
 	
 			elif walker.currentNode.tagName == 'references':
 				next = walker.nextNode()
@@ -76,21 +86,21 @@ for file in filelist:
 					next = walker.nextNode()
 					while walker.currentNode.tagName in ('advisory', 'bugzilla', 'cve', 'summary'):
 						if walker.currentNode.tagName in ('advisory', 'bugzilla', 'cve'):
-							refrec['id'] = walker.currentNode.firstChild.data
+							refrec['refid'] = walker.currentNode.firstChild.data
 						elif walker.currentNode.tagName == 'summary':
 							refrec['summary'] = walker.currentNode.firstChild.data
 						else:
-							raise 'Unknown tag in reference node'
+							raise 'Unknown tag <%s> in reference node' % walker.currentNode.tagName
 						next = walker.nextNode()
 
 					if refrec['reftype'] == 'self':
-						refrec['id'] = advrec['advid']
+						refrec['refid'] = advrec['advid']
 
 					if not refrec.has_key('summary'):
 						refrec['summary'] = None
 
 					if not refrec.has_key('id'):
-						refrec['id'] = None
+						refrec['refid'] = None
 
 					sarahlib.insertrec(cur, 'ref', refrec)
 				con.commit()
@@ -118,7 +128,7 @@ for file in filelist:
 						rpmrec = advrec.copy()
 						rpmrec['arch'] = walker.currentNode.getAttribute('arch')
 						rpmrec['prodshort'] = prorec['prodshort']
-						rpmrec['channel'] = []
+						rpmrec['channels'] = []
 						### FIXME: Do proper nested parsing
 						next = walker.nextNode()
 						while walker.currentNode.tagName in ('filename', 'sum', 'channel'):
@@ -127,21 +137,30 @@ for file in filelist:
 							elif walker.currentNode.tagName == 'sum':
 								rpmrec['md5'] = walker.currentNode.firstChild.data
 							elif walker.currentNode.tagName == 'channel':
-								rpmrec['channel'].append(walker.currentNode.getAttribute('name'))
+								rpmrec['channels'].append(walker.currentNode.getAttribute('name'))
 							else:
-								raise 'Unknown tag in file node'
+								raise 'Unknown tag <%s> in file node' % walker.currentNode.tagName
 							next = walker.nextNode()
 						sarahlib.insertrec(cur, 'rpm', rpmrec)
 				con.commit()
 				continue
+
+			elif walker.currentNode.tagName in ('a', 'contact', 'p', 'product', 'rights', 'rpmtext', 'solution'):
+				pass
+
+			else:
+				print 'Unknown tag <%s> in advisory node' % str(walker.currentNode.tagName)
 	
 			next = walker.nextNode()
 
 		### RHBAs and RHEAs do not have a severity level
 		if advrec['type'] in ('RHBA', 'RHEA'):
 			advrec['severitylevel'] = None
-		if not advrec.has_key('severitylevel'):
-			advrec['severitylevel'] = 'unknown'
+
+		if not advrec.has_key('severitylevel'): advrec['severitylevel'] = 'unknown'
+		if not advrec.has_key('rhgroup'): advrec['rhgroup'] = None
+		if not advrec.has_key('keywords'): advrec['keywords'] = None
+		if not advrec.has_key('obsoletes'): advrec['obsoletes'] = None
 	
 		sarahlib.insertrec(cur, 'adv', advrec)
 #		con.commit()

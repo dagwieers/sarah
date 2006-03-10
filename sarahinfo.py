@@ -21,38 +21,47 @@ for type in typelist:
 print
 print
 
-cur.execute('select severitylevel from adv where type == "RHSA"')
+cur.execute('select severity from adv where type == "RHSA"')
 advlist = cur.fetchall()
-print 'Security advisory per severity level:'
+print 'Security advisory per severity:'
 count = {}
 for adv, in advlist:
 	if not count.has_key(adv): count[adv] = 0
 	count[adv] += 1
 print '  ', 
-for key in ('critical', 'important', 'moderate', 'low', 'unknown'):
+for key in ('critical', 'important', 'moderate', 'low', 'unknown', 'error'):
 	if key in count.keys():
 		print '%s: %s  ' % (key, count[key]),
 print
 print
 
-cur.execute('select prodshort from pro order by prodshort')
-prodlist = [e for e, in cur.fetchall()]
+cur.execute('select distinct advid, prodshort from rpm')
+prodlist = cur.fetchall()
 print 'Advisories per products'
-last = '2'
-print '  ',
-for prod in prodlist:
-	if last != prod[0]:
-		print '\n  ',
-		last = prod[0]
-	cur.execute('select distinct advid from rpm where prodshort == "%s"' % prod)
-	print '%s: %s \t' % (prod, len(cur.fetchall())),
+count = {}
+for advid, prod in prodlist:
+	if not count.has_key(prod): count[prod] = 0
+	count[prod] += 1
+print '  ', 
+for key in ('2.1AS', '2.1ES', '2.1WS', '2.1AW'):
+	if key in count.keys():
+		print '%s: %s  ' % (key, count[key]),
+print '\n  ', 
+for key in ('3AS', '3ES', '3WS', '3Desktop'):
+	if key in count.keys():
+		print '%s: %s  ' % (key, count[key]),
+
+print '\n  ', 
+for key in ('4AS', '4ES', '4WS', '4Desktop'):
+	if key in count.keys():
+		print '%s: %s  ' % (key, count[key]),
 print
 print
 
 print 'Advisories per year:'
 print '  ',
 for year in ('2002', '2003', '2004', '2005', '2006'):
-	cur.execute('select advid from adv where issuedate glob "*%s*"' % year)
+	cur.execute('select advid from adv where issued glob "*%s*"' % year)
 	print '%s: %s \t' % (year, len(cur.fetchall())),
 print
 print

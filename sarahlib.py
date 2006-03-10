@@ -3,9 +3,10 @@ import os, sqlite, types
 dbase = 'sarahdb.sqlite'
 
 headers = {
-#	'adv': ('advid', 'pushcount', 'severitylevel', 'issuedate', 'updatedate', 'type', 'synopsis', 'description', 'topic', 'sender', 'version'),
-	'adv': ('advid', 'pushcount', 'severitylevel', 'issuedate', 'updatedate', 'type', 'synopsis', 'description', 'topic'),
-	'ref': ('advid', 'reftype', 'reference', 'id', 'summary'),
+#	'adv': ('advid', 'pushcount', 'severity', 'issued', 'updated', 'type', 'synopsis', 'description', 'topic', 'sender', 'version'),
+	'adv': ('advid', 'pushcount', 'severity', 'issued', 'updated', 'type', 'synopsis', 'description', 'topic', 'keywords', 'rhgroup', 'obsoletes'),
+	'ref': ('advid', 'reftype', 'reference', 'refid', 'summary'),
+#	'rpm': ('advid', 'prodshort', 'arch', 'filename', 'md5', 'channels'),
 	'rpm': ('advid', 'prodshort', 'arch', 'filename', 'md5'),
 	'pro': ('prodshort', 'product'),
 }
