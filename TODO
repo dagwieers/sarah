@@ -16,7 +16,6 @@ sarahdb.py: advisory database
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 + Command-line syntax brainstorm
 + Support new Red Hat XML format (channel info, paragraphs, bugzilla)
-+ Add RHBA and RHEA support
 + Export to CSV (to create graphs, stats)
 
 sarahinfo: statistical information
@@ -41,6 +40,7 @@ sarah: query advisory database  [TBD]
   - Create change-request reports (containing all required updates,
     technical information, urgency, ...)
 + Report alien packages in rpmdb (packages not coming from Red Hat)
++ Give me all new packages since <release date 3ES U7> that have product name 3ES
 + Search for strings (like CVE, bugzilla or other keywords)
 + Search for strings in rpmdb (like changelog, description)
 
@@ -55,6 +55,7 @@ Other interesting ideas
    * machines most at risk
    * machines most slowly patched.
    * window of risk
+
 + Let me throw out some other ideas off of the top of my head, more or
   less in the order of interest to me:
    1. The ability to track the presence and versions of homegrown packages
@@ -86,3 +87,15 @@ Other interesting ideas
       pkginfo to gather package information or lslpp on AIX. So if someone
       finds a new sshd vulnerability, I could look at one interface and find
       all affected machines.
+
++ What currently is in progress:
+
+	- scrap RHBAs and RHEAs (aerrate)
+	- create default reports (sarahrep)
+		- verify a system's packages against this database
+		- send out security reports in different formats
+			- for management
+			- for customers (prior to maintenance)
+			- for security-team
+		- the one you requested
+	- hooks to integrate Sarah into other tools/backends

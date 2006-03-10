@@ -42,20 +42,28 @@ count = {}
 for advid, prod in prodlist:
 	if not count.has_key(prod): count[prod] = 0
 	count[prod] += 1
+keys = count.keys()
+keys.sort()
+c = [0, 0, 0, 0, 0, 0]
+j = 2
 print '  ', 
-for key in ('2.1AS', '2.1ES', '2.1WS', '2.1AW'):
-	if key in count.keys():
+for key in keys:
+	i = int(key[0])
+	if i != j:
+		print 'Other: %s\n  ' % c[j],
+		j = i
+	if key in ('2.1AS', '2.1ES', '2.1WS', '2.1AW'):
 		print '%s: %s  ' % (key, count[key]),
-print '\n  ', 
-for key in ('3AS', '3ES', '3WS', '3Desktop'):
-	if key in count.keys():
+		continue
+	elif key in ('3AS', '3ES', '3WS', '3Desktop'):
 		print '%s: %s  ' % (key, count[key]),
-
-print '\n  ', 
-for key in ('4AS', '4ES', '4WS', '4Desktop'):
-	if key in count.keys():
+		continue
+	elif key in ('4AS', '4ES', '4WS', '4Desktop'):
 		print '%s: %s  ' % (key, count[key]),
-print
+		continue
+	else:
+		c[i] += count[key]
+print 'Other: %s\n  ' % c[j],
 print
 
 print 'Advisories per year:'
