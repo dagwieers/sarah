@@ -40,13 +40,22 @@ information is currently available in the XML files. Red Hat will be releasing
 these XML files in the future with much more info.
 
 I also added sarahsql to allow to query the database on the commandline, you
-can things in bash, like:
+can do queries in bash, like:
 
         ### Print filenames related to advisory
         ./sarahsql.py 'select distinct filename from rpm where advid == "RHSA-2005:039" order by filename'
 
         ### Show last 10 updated advisories
-        ./sarahsql.py 'select advid, issuedate, updatedate, severity from adv order by updatedate' | tail
+        ./sarahsql.py 'select advid, issued, updated, severity, synopsis from adv order by updated' | tail
+
+	### Show last 10 updated security advisories
+	./sarahsql.py 'select advid, issued, updated, severity, synopsis from adv where type == "RHSA" order by updated' | tail
+
+	### Show last 10 updates security advisories for 4AS
+	./sarahsql.py 'select distinct adv.advid,updated,severity,synopsis from adv,rpm where adv.advid == rpm.advid and type == "RHSA" and prodshort == "4AS" order by updated' | tail
+
+	### Show all files related to 3AS order by issue date
+	./sarahsql.py 'select issued,filename from rpm,adv where adv.advid == rpm.advid and prodshort == "3AS" and arch == "i386" order by issued'
 
 Help is welcome to extend sarah much further. The TODO file is the first stop
 for interesting parties.
