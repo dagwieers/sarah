@@ -37,7 +37,7 @@ print
 
 cur.execute('select distinct advid, prodshort from rpm')
 prodlist = cur.fetchall()
-print 'Advisories per products'
+print 'Advisories per products:'
 count = {}
 for advid, prod in prodlist:
 	if not count.has_key(prod): count[prod] = 0
@@ -48,14 +48,16 @@ c = [0, 0, 0, 0, 0, 0]
 j = 2
 print '  ', 
 for key in keys:
-	i = int(key[0])
+	try: i = int(key[0])
+	except: i = 0
 	if i != j:
-		print 'Other: %s\n  ' % c[j],
+		print 'Other (%s): %s\n  ' % (j, c[j]),
 		j = i
 	if key in ('2.1AS', '2.1ES', '2.1WS', '2.1AW'):
 		print '%s: %s  ' % (key, count[key]),
 		continue
-	elif key in ('3AS', '3ES', '3WS', '3Desktop'):
+	### FIXME: aerrate should rename 3desktop to 3Desktop
+	elif key in ('3AS', '3ES', '3WS', '3Desktop', '3desktop'):
 		print '%s: %s  ' % (key, count[key]),
 		continue
 	elif key in ('4AS', '4ES', '4WS', '4Desktop'):
@@ -63,14 +65,15 @@ for key in keys:
 		continue
 	else:
 		c[i] += count[key]
-print 'Other: %s\n  ' % c[j],
+print 'Other (%s): %s\n  ' % (j, c[j]),
+print 'Other (unknown): %s\n  ' % c[0],
 print
 
 print 'Advisories per year:'
 print '  ',
 for year in ('2002', '2003', '2004', '2005', '2006'):
 	cur.execute('select advid from adv where issued glob "*%s*"' % year)
-	print '%s: %s \t' % (year, len(cur.fetchall())),
+	print '%s: %s  ' % (year, len(cur.fetchall())),
 print
 print
 

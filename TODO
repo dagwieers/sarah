@@ -1,15 +1,11 @@
-aerrate.py: scraps rhn advisory information
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+ Add RHBA and RHEA support
+aerrate.py: scrapes rhn advisory information
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 + Allow to list a number of releases (eg. --release=rhel4as,rhel3as,rhel2.1as)
-  and remember what advisories have already been scraped (recently)
-+ Allow to list all types of advisories (eg. --type=all or --type=critical,important)
-+ Make aerrate smart about advisories already downloaded
++ Make aerrate smart about advisories already scraped (recently)
 + Use timestamp and HTTP HEAD requests to check for updates
 + Parallelize the download process (use HTTP Pipelining and use
   eg. 4 connections)
 + Fix SSL proxy support (CONNECT method) in urllib2
-+ Make aerrate.py executable :)
 
 
 sarahdb.py: advisory database
@@ -89,8 +85,6 @@ Other interesting ideas
       all affected machines.
 
 + What currently is in progress:
-
-	- scrap RHBAs and RHEAs (aerrate)
 	- create default reports (sarahrep)
 		- verify a system's packages against this database
 		- send out security reports in different formats

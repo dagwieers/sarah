@@ -10,23 +10,19 @@ Tim Rupp. Available from:
 And issuing the following script:
 
 	cd aerrate
-	for release in rh{el4,el3,21}{as,es,ws} rhel{4,3}-extras rh-desktop-{4,3} rhel3{cluster,devsuite} rh21aw rhshas; do
-		for type in security; do
-			echo "== $release / $type =="
-			python ./aerrate.py -r --source=site --type=$type --release=$release
-		done
+	for release in rh{el4,el3,21}{as,es,ws} rh-desktop-{4,3} rh21aw rhel{4,3}-extras rhel3{cluster,devsuite} rhshas; do
+		echo "== $release =="
+		python ./aerrate.py -r --source=site --type=all --release=$release
 	done
 	cd -
 
 This will copy all errata as XML files into ./aerrata/advisories/
 
-Currently aerrate only implements security advisories, not bugs or enhancements.
-
 
 USING SARAH
 ^^^^^^^^^^^
-sarah currently expects the advisories to be available from ./advisories/. So making
-a symlink from aerrate/advisories to ./advisories is probably easiest.
+sarah currently expects the advisories to be available from ./advisories/. So
+making a symlink from aerrate/advisories to ./advisories is probably easiest.
 
 	ln -sf aerrate/advisories .
 
@@ -39,12 +35,12 @@ To create some statistics from this database, use:
 
 	./sarahinfo.py
 
-The sarahinfo utility currently shows how to query the database. Not all information
-is currently available in the XML files. Red Hat will be releasing these XML files
-in the future with much more info.
+The sarahinfo utility currently shows how to query the database. Not all
+information is currently available in the XML files. Red Hat will be releasing
+these XML files in the future with much more info.
 
-I also added sarahsql to allow to query the database on the commandline, you can
-things in bash, like:
+I also added sarahsql to allow to query the database on the commandline, you
+can things in bash, like:
 
         ### Print filenames related to advisory
         ./sarahsql.py 'select distinct filename from rpm where advid == "RHSA-2005:039" order by filename'
@@ -52,15 +48,15 @@ things in bash, like:
         ### Show last 10 updated advisories
         ./sarahsql.py 'select advid, issuedate, updatedate, severity from adv order by updatedate' | tail
 
-Help is welcome to extend sarah much further. The TODO file is the first stop for
-interesting parties.
+Help is welcome to extend sarah much further. The TODO file is the first stop
+for interesting parties.
 
 
 PROXY PROBLEMS ?
 ^^^^^^^^^^^^^^^^
-If you're behind a proxy that only allows SSL Proxy access (CONNECT method) for HTTPS sites,
-you're currently out of luck. The urllib2 implementation of python only has the HTTPS GET
-method implemented. More information at:
+If you're behind a proxy that only allows SSL Proxy access (CONNECT method) for
+HTTPS sites, you're currently out of luck. The urllib2 implementation of python
+only has the HTTPS GET method implemented. More information at:
 
 	https://devel.linux.duke.edu/bugzilla/show_bug.cgi?id=543
 	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/456195

@@ -7,6 +7,44 @@ import cElementTree as ElementTree
 
 sys.stdout = os.fdopen(1, 'w', 0)
 
+def elattr(ro, at, fail=True):
+	ret = ro.get(at)
+	if not ret and fail:
+		raise Exception, 'Attribute %s not found in element %s ' % (at, ro)
+	return ret
+
+def findel(ro, el, fail=True):
+	ret = ro.findtext(el)
+	if not ret and fail:
+		raise Exception, 'Element %s not found in root %s ' % (el, ro)
+	return ret
+
+def findelattr(ro, el, at, fail=True):
+	try: 
+		ret = root.find(el).get(at)
+	except:
+		if fail:
+			raise Exception, 'Element %s not found in root %s ' % (el, ro)
+		return None
+	if not ret and fail:
+		raise Exception, 'Attribute %s not found in element %s ' % (at, el)
+	return ret
+
+def find(ro, el, fail=False):
+	ret = ro.find(el)
+	if not ret:
+		if fail:
+			raise Exception, 'Element %s not found in root %s ' % (el, ro)
+		return []
+	return ret
+def findall(ro, el, fail=False):
+	ret = ro.findall(el)
+	if not ret:
+		if fail:
+			raise Exception, 'Element list %s not found in root %s ' % (el, ro)
+		return []
+	return ret
+
 con, cur = sarahlib.opendb()
 sarahlib.createtb(cur, 'adv')
 sarahlib.createtb(cur, 'ref')
@@ -24,86 +62,91 @@ for file in filelist:
 		root = tree.getroot()
 
 		advrec = {};
-		advrec['sender'] = root.get('from')
-		advrec['version'] = root.get('version')
-		advrec['version'] = root.get('version')
 
-		advrec['advid'] = root.findtext('id')
-		advrec['pushcount'] = root.findtext('pushcount')
-		advrec['type'] = root.find('type').get('short')
-		advrec['keywords'] = root.findtext('keywords')
-		advrec['obsoletes'] = root.findtext('obsoletes')
+		### FIXME: aerrate uses 'sender' instead of 'from' (unfixable)
+		try: advrec['sender'] = elattr(root, 'from')
+		except: advrec['sender'] = elattr(root, 'sender')
 
-		if root.find('group'):
-			advrec['rhgroup'] = root.find('group').get('name')
-		else:
-			advrec['rhgroup'] = None
+		advrec['version'] = elattr(root, 'version')
 
-		### RHBAs and RHEAs do not have a severity level
+		advrec['advid'] = findel(root, 'id')
+		advrec['pushcount'] = findel(root, 'pushcount')
+
+		### FIXME: aerrate does not (always) add type short info (use filename)
+		try: advrec['type'] = findelattr(root, 'type', 'short')
+		except: advrec['type'] = file[0:4]
+
+		try: advrec['keywords'] = ' '.join(findel(root, 'keywords'))
+		except: advrec['keywords'] = None
+		try: advrec['obsoletes'] = ' '.join(findel(root, 'obsoletes'))
+		except: advrec['obsoletes'] = None
+
+		advrec['rhgroup'] = findelattr(root, 'group', 'name', fail=False)
+
 		if advrec['type'] in ('RHBA', 'RHEA'):
 			advrec['severity'] = None
-		elif root.find('severity') != None:
-			advrec['severity'] = root.find('severity').get('level')
-		elif root.findtext('severity'):
-			advrec['severity'] = root.findtext('severity')
 		else:
-#			raise Exception, 'severity not found.'
-			advrec['severity'] = 'error'
+			### FIXME: aerrate uses severity element text and not level attribute
+			try: advrec['severity'] = findelattr(root, 'severity', 'level')
+			except: advrec['severity'] = findel(root, 'severity')
 
-		advrec['synopsis'] = root.findtext('synopsis')
-		advrec['issued'] = root.find('issued').get('date')
-		advrec['updated'] = root.find('updated').get('date')
-		advrec['topic'] = root.findtext('topic')
-		advrec['description'] = root.findtext('description')
+		advrec['synopsis'] = findel(root, 'synopsis')
+		advrec['issued'] = findelattr(root, 'issued', 'date')
+		advrec['updated'] = findelattr(root, 'updated', 'date')
+		advrec['topic'] = findel(root, 'topic')
 
+		### FIXME: aerrate should replace <p> by \n\n for better formatting or not replace at all
+		advrec['description'] = findel(root, 'description')
+
+#		print 'advrec:', advrec.keys()
 #		print 'advrec:', advrec
 		sarahlib.insertrec(cur, 'adv', advrec)
 
-		for refnode in root.find('references'):
+		for refnode in find(root, 'references'):
 			refrec = { 'advid': advrec['advid'] }
-			refrec['reftype'] = refnode.get('type')
-			refrec['reference'] = refnode.get('href')
+			refrec['reftype'] = elattr(refnode, 'type')
+			### FIXME: aerrate still implements the old format for reference information, skip
+			refrec['reference'] = elattr(refnode, 'href', fail=False)
 
 			if refrec['reftype'] == 'self':
 				refrec['refid'] = advrec['advid']
 			elif refnode.findtext('advisory'):
-				refrec['refid'] = refnode.findtext('advisory')
+				refrec['refid'] = findel(refnode, 'advisory')
 			elif refnode.findtext('bugzilla'):
-				refrec['refid'] = refnode.findtext('bugzilla')
+				refrec['refid'] = findel(refnode, 'bugzilla')
 			elif refnode.findtext('cve'):
-				refrec['refid'] = refnode.findtext('cve')
+				refrec['refid'] = findel(refnode, 'cve')
 			elif refnode.findtext('self'):
-				refrec['refid'] = refnode.findtext('self')
+				refrec['refid'] = findel(refnode, 'self')
 			else:
 				refrec['refid'] = 'error'
 #				raise Exception, 'refid not found.'
 
-			if refnode.find('summary'):
-				refrec['summary'] = refnode.findtext('summary')
-			else:
-				refrec['summary'] = None
+			refrec['summary'] = findel(refnode, 'summary', fail=False)
 
 #			print 'refrec:', refrec
 			sarahlib.insertrec(cur, 'ref', refrec)
 
-		if not root.find('rpmlist'): continue
-		for pronode in root.find('rpmlist'):
+		for pronode in find(root, 'rpmlist'):
 			prorec = { 'advid': advrec['advid'] }
-			prorec['prodshort'] = pronode.get('short')
-			prorec['product'] = pronode.findtext('name')
-#			print prorec
-			try: sarahlib.insertrec(cur, 'pro', prorec)
-			except: pass
+			### FIXME: aerrate does not (always) add product info, skip
+			try:
+				prorec['prodshort'] = elattr(pronode, 'short')
+				prorec['product'] = findel(pronode, 'name')
+#				print prorec
+				try: sarahlib.insertrec(cur, 'pro', prorec)
+				except: pass
+			except:
+				pass
 
-			if not pronode.find('file'): continue
-			for rpmnode in pronode.findall('file'):
+			for rpmnode in findall(pronode, 'file'):
 				rpmrec = { 'advid': advrec['advid'], 'prodshort': prorec['prodshort'] }
-				rpmrec['arch'] = rpmnode.get('arch')
-				rpmrec['filename'] = rpmnode.findtext('filename')
+				rpmrec['arch'] = elattr(rpmnode, 'arch')
+				rpmrec['filename'] = findel(rpmnode, 'filename')
 				if rpmnode.find('sum').get('type') == 'md5':
-					rpmrec['md5'] = rpmnode.findtext('sum')
+					rpmrec['md5'] = findel(rpmnode, 'sum')
 				rpmrec['channels'] = []
-				for channel in root.findall('channel'):
+				for channel in findall(rpmnode, 'channel'):
 					rpmrec['channels'].append(channel.get('name'))
 #				print rpmrec
 				sarahlib.insertrec(cur, 'rpm', rpmrec)

@@ -178,6 +178,6 @@ for file in filelist:
 	except (xml.sax._exceptions.SAXParseException, AttributeError, KeyError), e:
 		print '\033[0;31m%s\033[0;0m' % os.path.basename(file),
 		print e
-#		raise
-		continue
+		raise
+#		continue
 con.commit()
