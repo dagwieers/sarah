@@ -1,9 +1,10 @@
 DOWNLOADING ERRATA
 ^^^^^^^^^^^^^^^^^^
-Sarah currently requires a stuffed directory of advisories from RHN as XML files.
+Sarah currently requires a stuffed directory of advisories from RHN as XML
+files.
 
-You can download these files automatically by using the aerrate.py script from
-Tim Rupp. Available from:
+You can download these files automatically by using the aerrate.py script
+from Tim Rupp. Available from:
 
 	svn co http://caphrim.net/svn/fermi/aerrate/trunk aerrate
 
@@ -11,8 +12,11 @@ Then apply the latest patch from patches/:
 
 	patch -p0 < patches/aerrate-changes-dag-TIMESTAMP.diff
 
-And issue the following command to scrape the RHN website for the most up-to-date
-advisories:
+Look inside the patch in order to check out the correct svn revision for
+the latest patch. Tim might have updated aerrate since my latest patch.
+
+And issue the following command to scrape the RHN website for the most
+up-to-date advisories:
 
 	cd aerrate
 	./aerrate.py -r --source=site --type=all --release=enterprise
@@ -22,8 +26,9 @@ This will copy all errata as XML files into ./aerrata/advisories/
 
 USING SARAH
 ^^^^^^^^^^^
-sarah currently expects the advisories to be available from ./advisories/. So
-making a symlink from aerrate/advisories to ./advisories is probably easiest.
+sarah currently expects the advisories to be available from ./advisories/.
+So making a symlink from aerrate/advisories to ./advisories is probably
+easiest.
 
 	ln -sf aerrate/advisories .
 
@@ -65,9 +70,9 @@ for interesting parties.
 
 PROXY PROBLEMS ?
 ^^^^^^^^^^^^^^^^
-If you're behind a proxy that only allows SSL Proxy access (CONNECT method) for
-HTTPS sites, you're currently out of luck. The urllib2 implementation of python
-only has the HTTPS GET method implemented. More information at:
+If you're behind a proxy that only allows SSL Proxy access (CONNECT method)
+for HTTPS sites, you're currently out of luck. The urllib2 implementation of
+python only has the HTTPS GET method implemented. More information at:
 
 	https://devel.linux.duke.edu/bugzilla/show_bug.cgi?id=543
 	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/456195
