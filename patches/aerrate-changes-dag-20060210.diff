@@ -1,0 +1,232 @@
+Index: parsers/security.py
+===================================================================
+--- parsers/security.py	(revision 19)
++++ parsers/security.py	(working copy)
+@@ -94,6 +94,15 @@
+ 
+ 		self.detail = result
+ 
++		# Get RHSA title (contains severity and synopsis)
++		result = re.search('<h1>(.+?)</h1>', page,  re.I | re.M)
++#		result = re.search('<h1>(?P<severity>.+?): (?P<synopsis>.+?)</h1>', page,  re.I | re.M)
++		if result:
++			self.synopsis = result.group(1)
++		else:
++			self.synopsis = 'Unknown: Unknown'
++
++
+ 	def update_database(self, link):
+ 		"""
+ 		Updates the output XML file to reflect the new contents
+@@ -168,7 +177,7 @@
+ 		self.parse_rights(w)
+ 		self.parse_type(w)
+ 
+-		self.parse_synopsis(w, self.detail[1], self.detail[0])
++		self.parse_synopsis(w, self.synopsis)
+ 		self.parse_issue_date(w, self.strip_html(self.detail[0]))
+ 		self.parse_updated_on(w, self.strip_html(self.detail[0]))
+ 
+@@ -240,7 +249,7 @@
+ 		separated to different files. This should be the only script
+ 		that parses the RHSA errata
+ 		"""
+-		w.element("type", "Red Hat Security Advisory", short="RHSA")
++		w.element("type", short="RHSA")
+ 
+ 	def parse_relevant_releases(self, w, data):
+ 		"""
+@@ -267,61 +276,26 @@
+ 			elif tmp[0].find('#Power') > 0:
+ 				self.releases.append(self.strip_html(tmp[0]))
+ 
+-	def parse_synopsis(self, w, data, fallback_data):
++	def parse_synopsis(self, w, data):
+ 		"""
+ 		Specifically parses the 'Synopsis' line from the
+ 		RHSA notice.
+ 		"""
+ 		data = self.tags_to_space(data)
+ 		data = self.strip_html(data)
+-		block = data.split("\n")
+-		synops	= block
++		line = data.strip().split(':')
+ 
+-		# Red hat doesnt separate out the severity information
+-		# in their webpages like they do in their email archives.
+-		# Therefore I'm looking for the severity string to
+-		# determine the severity level.
+-		for line in block:
+-			if line.find("moderate security") > -1:
+-				w.element("severity", "moderate")
+-				break
+-			elif line.find("important security") > -1:
+-				w.element("severity", "important")
+-				break
+-			elif line.find("critical security") > -1:
+-				w.element("severity", "critical")
+-				break
+-			elif line.find("low security") > -1:
+-				w.element("severity", "low")
+-				break
+-		else:
+-			data = self.tags_to_space(fallback_data)
+-			data = self.strip_html(fallback_data)
+-			block = data.split("\n")
++		severity = line[0].strip().lower()
++		synopsis = ':'.join(line[1:]).strip()
+ 
+-			for line in block:
+-				if line.find("Moderate") > -1:
+-					w.element("severity", "moderate")
+-					break
+-				elif line.find("Important") > -1:
+-					w.element("severity", "important")
+-					break
+-				elif line.find("Critical") > -1:
+-					w.element("severity", "critical")
+-					break
+-				elif line.find("Low") > -1:
+-					w.element("severity", "low")
+-					break
+-			else:
+-				w.element("severity", "unknown")
+-
+-		# Get RHSA title (contains severity and synopsis)
+-		result = re.search('<h1>(.+?)</h1>', fallback_data,  re.I | re.M)
+-		if result:
+-			synopsis = result.group(1)
++		if severity in ('low', 'moderate', 'important', 'critical'):
++			w.element('severity', level=severity)
+ 		else:
+-			synopsis = 'Unknown: Unknown'
++			w.element('severity', level='unknown')
+ 
++		if not synopsis:
++			synopsis = data.strip()
++
+ 		w.element("synopsis", synopsis, lang="en_US")
+ 
+ 	def tags_to_space(self, item):
+@@ -366,7 +340,7 @@
+ 		RHSA notice. Note that html is stripped from the
+ 		line before it is written to the XML file
+ 		"""
+-		w.element("reference", self.advisory_url, type="self")
++		w.element("reference", type="self", href=self.advisory_url)
+ 
+ 	def parse_issue_date(self, w, data):
+ 		"""
+@@ -516,11 +490,11 @@
+ 			filename 	= ''
+ 
+ 			try:
+-				item 		= block.pop()
++				item  = block.pop()
+ 			except IndexError:
+ 				break
+ 
+-			item	= item.replace("&#160;", '').strip()
++			item = item.replace("&#160;", '').strip()
+ 
+ 			if self.at_release(item):
+ 				try:
+@@ -592,7 +566,7 @@
+ 		while 1:
+ 			outdated = 0;
+ 			try:
+-				filename 	= block.pop().replace("&#160;", '').strip()
++				filename = block.pop().replace("&#160;", '').strip()
+ 				if self.at_arch(filename):
+ 					error = "new_arch"
+ 					break
+@@ -602,18 +576,15 @@
+ 				elif not self.linked:
+ 					junk = block.pop()
+ 
+-				checksum	= block.pop().replace("&#160;", '').strip()
++				checksum = block.pop().replace("&#160;", '').strip()
+ 
+ 				if self.at_outdated(checksum):
+-					try:
+-						tmp_outdate = checksum.replace("&#160;", '').strip()
+-						outdate = checksum[tmp_outdate.find(':')+1:].strip()
++					tmp_outdate = checksum.replace("&#160;", '').strip()
++					outdate = checksum[tmp_outdate.find(':')+1:].strip()
+ 
+-						outdated = 1
++					outdated = 1
+ 
+-						checksum	= block.pop().replace("&#160;", '').strip()
+-					except IndexError:
+-						break
++					checksum = block.pop().replace("&#160;", '').strip()
+ 
+ 			except IndexError:
+ 				break
+@@ -641,35 +612,32 @@
+ 		while 1:
+ 			outdated = 0;
+ 			try:
+-				filename 	= block.pop().replace("&#160;", '').strip()
+-			except IndexError:
+-				break
++				filename = block.pop().replace("&#160;", '').strip()
+ 
+-			if self.at_release(filename):
+-				error = "header"
+-				break
+-			elif self.at_arch(filename):
+-				error = "new_arch"
+-				break
+-			elif not filename:
+-				error = "new_arch"
+-				break
+-			elif not self.linked:
+-				junk = block.pop()
++				if self.at_release(filename):
++					error = "header"
++					break
++				elif self.at_arch(filename):
++					error = "new_arch"
++					break
++				elif not filename:
++					error = "new_arch"
++					break
++				elif not self.linked:
++					junk = block.pop()
+ 			
+-			checksum 	= block.pop().replace("&#160;", '').strip()
++				checksum = block.pop().replace("&#160;", '').strip()
+ 
+-			if self.at_outdated(checksum):
+-				try:
++				if self.at_outdated(checksum):
+ 					tmp_outdate = checksum.replace("&#160;", '').strip()
+ 					outdate = checksum[tmp_outdate.find(':')+1:].strip()
+ 
+ 					outdated = 1
+ 
+ 					checksum 	= block.pop().replace("&#160;", '').strip()
+-				except IndexError:
+-					break
+ 
++			except IndexError:
++				break
+ 
+ 			# Hack to make RH webpages that list IA-32 stuff
+ 			# equal the data that is actually listed in the
+Index: aerrate.py
+===================================================================
+--- aerrate.py	(revision 19)
++++ aerrate.py	(working copy)
+@@ -71,6 +71,9 @@
+ 			print_releases = 1
+ 		elif o in ("-r", "--release"):
+ 			release = a
++		else:
++			print 'Option %s not understood.' %o
++			sys.exit(1)
+ 
+ 	# Print releases is one argument in particular
+ 	# that doesnt require the source argument.

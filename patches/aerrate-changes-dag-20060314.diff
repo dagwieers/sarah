@@ -1,0 +1,330 @@
+Index: aerrate/parsers/enhancements.py
+===================================================================
+--- aerrate/parsers/enhancements.py	(revision 20)
++++ aerrate/parsers/enhancements.py	(working copy)
+@@ -185,7 +185,7 @@
+ 
+ 		# New pushcounts will be higher. This signifies that
+ 		# the XML file for the specific advisory needs to be updated
+-		if pushcount_new > pushcount_old:
++		if int(pushcount_new) > int(pushcount_old):
+ 			return True
+ 		else:
+ 			return False
+@@ -262,12 +262,13 @@
+ 		Specifically parses the 'Synopsis' line from the
+ 		RHEA notice.
+ 		"""
+-		# Get RHEA title (contains severity and synopsis)
++		# Get RHEA title
+ 		result = re.search('<h1>(.+?)</h1>', data,  re.I | re.M)
+ 		if result:
+ 			synopsis = self.strip_html(result.group(1))
++			synopsis = synopsis.strip()
+ 		else:
+-			synopsis = 'Unknown: Unknown'
++			synopsis = 'Unknown'
+ 
+ 		w.element("synopsis", synopsis, lang="en_US")
+ 
+Index: aerrate/parsers/errata_parser.py
+===================================================================
+--- aerrate/parsers/errata_parser.py	(revision 20)
++++ aerrate/parsers/errata_parser.py	(working copy)
+@@ -41,8 +41,8 @@
+ 				"Red Hat Enterprise Linux AS version 3":"3AS",
+ 				"Red Hat Enterprise Linux AS (v. 3)":"3AS",
+ 
+-				"Red Hat Desktop version 3":"3desktop",
+-				"Red Hat Desktop (v. 3)":"3desktop",
++				"Red Hat Desktop version 3":"3Desktop",
++				"Red Hat Desktop (v. 3)":"3Desktop",
+ 
+ 				"Red Hat Enterprise Linux ES version 3":"3ES",
+ 				"Red Hat Enterprise Linux ES (v. 3)":"3ES",
+Index: aerrate/parsers/bugs.py
+===================================================================
+--- aerrate/parsers/bugs.py	(revision 20)
++++ aerrate/parsers/bugs.py	(working copy)
+@@ -185,7 +185,7 @@
+ 
+ 		# New pushcounts will be higher. This signifies that
+ 		# the XML file for the specific advisory needs to be updated
+-		if pushcount_new > pushcount_old:
++		if int(pushcount_new) > int(pushcount_old):
+ 			return True
+ 		else:
+ 			return False
+@@ -262,12 +262,13 @@
+ 		Specifically parses the 'Synopsis' line from the
+ 		RHBA notice.
+ 		"""
+-		# Get RHBA title (contains severity and synopsis)
++		# Get RHBA title
+ 		result = re.search('<h1>(.+?)</h1>', data,  re.I | re.M)
+ 		if result:
+ 			synopsis = self.strip_html(result.group(1))
++			synopsis = synopsis.strip()
+ 		else:
+-			synopsis = 'Unknown: Unknown'
++			synopsis = 'Unknown'
+ 
+ 		w.element("synopsis", synopsis, lang="en_US")
+ 
+Index: aerrate/parsers/security.py
+===================================================================
+--- aerrate/parsers/security.py	(revision 20)
++++ aerrate/parsers/security.py	(working copy)
+@@ -195,7 +195,7 @@
+ 
+ 		# New pushcounts will be higher. This signifies that
+ 		# the XML file for the specific advisory needs to be updated
+-		if pushcount_new > pushcount_old:
++		if int(pushcount_new) > int(pushcount_old):
+ 			return True
+ 		else:
+ 			return False
+@@ -283,16 +283,16 @@
+ 		# determine the severity level.
+ 		for line in block:
+ 			if line.find("moderate security") > -1:
+-				w.element("severity", "moderate")
++				w.element("severity", "", level="moderate")
+ 				break
+ 			elif line.find("important security") > -1:
+-				w.element("severity", "important")
++				w.element("severity", "", level="important")
+ 				break
+ 			elif line.find("critical security") > -1:
+-				w.element("severity", "critical")
++				w.element("severity", "", level="critical")
+ 				break
+ 			elif line.find("low security") > -1:
+-				w.element("severity", "low")
++				w.element("severity", "", level="low")
+ 				break
+ 		else:
+ 			data = self.tags_to_space(fallback_data)
+@@ -301,26 +301,29 @@
+ 
+ 			for line in block:
+ 				if line.find("Moderate") > -1:
+-					w.element("severity", "moderate")
++					w.element("severity", "", level="moderate")
+ 					break
+ 				elif line.find("Important") > -1:
+-					w.element("severity", "important")
++					w.element("severity", "", level="important")
+ 					break
+ 				elif line.find("Critical") > -1:
+-					w.element("severity", "critical")
++					w.element("severity", "", level="critical")
+ 					break
+ 				elif line.find("Low") > -1:
+-					w.element("severity", "low")
++					w.element("severity", "", level="low")
+ 					break
+ 			else:
+-				w.element("severity", "unknown")
++				w.element("severity", "", level="unknown")
+ 
+-		# Get RHSA title (contains severity and synopsis)
++		# Get advisory title (RHSA contains severity and synopsis)
+ 		result = re.search('<h1>(.+?)</h1>', fallback_data,  re.I | re.M)
+ 		if result:
+ 			synopsis = self.strip_html(result.group(1))
++			if synopsis.rfind(':') != -1:
++				synopsis = synopsis.split(':')[1]
++			synopsis = synopsis.strip()
+ 		else:
+-			synopsis = 'Unknown: Unknown'
++			synopsis = 'Unknown'
+ 
+ 		w.element("synopsis", synopsis, lang="en_US")
+ 
+Index: aerrate/scrapers/feed.py
+===================================================================
+--- aerrate/scrapers/feed.py	(revision 20)
++++ aerrate/scrapers/feed.py	(working copy)
+@@ -99,7 +99,7 @@
+ 		# Create a new progress bar
+ 		prog = progressBar(0, len(links), 40)
+ 
+-		print "Running..."
++#		print "Running..."
+ 
+ 		# For each of the <link> blocks that we received,
+ 		# and after having filtered out the ones we dont
+@@ -113,4 +113,4 @@
+ 			ae.update_database(link)
+ 			prog.updateAmount(counter)
+ 			time.sleep(.05)
+-		print "\nFinished"
++#		print "\nFinished"
+Index: aerrate/scrapers/site.py
+===================================================================
+--- aerrate/scrapers/site.py	(revision 20)
++++ aerrate/scrapers/site.py	(working copy)
+@@ -45,7 +45,7 @@
+ 		self.links		= []
+ 		self.release_list	= "https://rhn.redhat.com"
+ 		self.type		= type
+-		self.release		= release
++		self.release		= release.split(',')
+ 		self.releases		= {}
+ 
+ 		self.type_map		= {'security':"RHSA",'bugs':"RHBA",'enhancements':"RHEA"}
+@@ -70,7 +70,8 @@
+ 			page = urlgrabber.urlread(self.release_list+"/errata", proxies=self.proxy)
+ 		except urlgrabber.grabber.URLGrabError:
+ 			print 'Error grabbing list of all releases from',self.release_list+"/errata"
+-			return
++#			return
++			sys.exit(1)
+ 
+ 		result = p.split(page)
+ 
+@@ -181,43 +182,64 @@
+ 			return ae
+ 
+ 	def main_run(self):
+-		print "Running..."
++#		print "Running..."
+ 
+-		if self.type != "all":
+-			ae = self.get_parser_obj(self.type)
+-			self.get_errata_links(self.type_map[self.type], self.release)
++		self.get_releases()
++		allreleases = ['-'.join(os.path.basename(r).split('-')[0:-1]) for r in self.releases.values()]
++		allreleases.sort()
+ 
+-			prog = progressBar(0, len(self.links), 40)
+-			counter = 0
++		if self.release == ['all',]:
++			self.release = allreleases
++		elif self.release == ['enterprise',]:
++			self.release = [r for r in allreleases if r not in ('rh62', 'rh62-powertools', 'rh62EE', 'rh7', 'rh7-powertools', 'rh71', 'rh71-powertools', 'rh71iseries', 'rh71pseries', 'rh72', 'rh73', 'rh8', 'rh9', 'rhdb71')]
+ 
+-			for link in self.links:
+-				counter += 1
+-				sys.stderr.write(str(prog)+"\tPages Scraped: "+str(counter)+"\r")
++		print self.release
+ 
+-				ae.cleanup()
+-				ae.update_database(link)
+-				prog.updateAmount(counter)
+-				time.sleep(.05)
+-		else:
+-			for x in ["RHSA","RHBA","RHEA"]:
+-				ae = self.get_parser_obj(self.rtype_map[x])
+-				self.get_errata_links(x, self.release)
++		links = []
++		for release in self.release:
++			if release not in allreleases:
++				print 'Release %s is not valid.' % release
++				continue
+ 
++			if self.type != "all":
++				ae = self.get_parser_obj(self.type)
++				print "Downloading errata list...",
++				self.get_errata_links(self.type_map[self.type], release)
++				print "done\r                               \r",
++	
+ 				prog = progressBar(0, len(self.links), 40)
+ 				counter = 0
+-
+-				print "\nGetting",x,"errata\n"
+-
++	
+ 				for link in self.links:
+ 					counter += 1
+-					sys.stderr.write(str(prog)+"\tPages Scraped: "+str(counter)+"\r")
+-
++					prog.updateAmount(counter)
++					advid = os.path.basename(link).split('.')[0]
++					sys.stderr.write("%s/%s:%s %3d/%s pages (%s)\r" % (release, type, prog, counter, len(self.links), advid))
+ 					ae.cleanup()
+ 					ae.update_database(link)
+-					prog.updateAmount(counter)
+-					time.sleep(.05)
++#					time.sleep(.05)
++				print
++	
++			else:
++				### Keep a list of already scraped links (as RHSA
++				for type in ("RHSA","RHBA","RHEA"):
++					ae = self.get_parser_obj(self.rtype_map[type])
++					print "Downloading errata list...",
++					self.get_errata_links(type, release)
++					print "done\r                               \r",
++					prog = progressBar(0, len(self.links), 40)
++					counter = 0
++	
++					for link in self.links:
++						counter += 1
++						prog.updateAmount(counter)
++						advid = os.path.basename(link).split('.')[0]
++						sys.stderr.write("%s/%s:%s %3d/%s pages (%s)\r" % (release, type, prog, counter, len(self.links), advid))
++						if link in links: continue
++						links.append(link)
++						ae.cleanup()
++						ae.update_database(link)
++#						time.sleep(.05)
++					print
+ 
+-				print "\nFinished grabbing",x,"errata"
+-
+-		print "\nFinished"
+ 		sys.exit(ae.exit_status)
+Index: aerrate/aerrate.py
+===================================================================
+--- aerrate/aerrate.py	(revision 20)
++++ aerrate/aerrate.py	(working copy)
+@@ -6,6 +6,8 @@
+ 
+ from scrapers.scraper import scrape
+ 
++sys.stdout = os.fdopen(1, 'w', 0)
++
+ def usage():
+ 	"""
+ 	Prints out a usage message the explains
+@@ -14,7 +16,7 @@
+ 
+ 	print """
+ Usage:  aerrate [OPTIONS]
+-	aerrate --source=site --type=[TYPE] --release=[RELEASE]
++	aerrate --source=site --type=[TYPE] --release=[RELEASE],[RELEASE]
+ 	aerrate --source=feed --type=[TYPE]
+ 	aerrate --printreleases
+ 
+@@ -25,6 +27,7 @@
+   --help		Display this help and exit
+ 
+ Known values for TYPE are
++	all
+ 	security
+ 	bugs
+ 	enhancements
+@@ -95,6 +98,7 @@
+ 				sys.exit(0)
+ 
+ 	try:
++		print "Downloading release list...",
+ 		if source == "archive":
+ 			# For parsing the email archives
+ 			# of the enterprise-watch-list
+@@ -125,11 +129,12 @@
+ 			sc = feed_scraper(type)
+ 		else:
+ 			pass
++		print "done"
+ 
+ 		# Run the main loop of whichever scraper chosen above
+ 		sc.main_run()
+ 	except KeyboardInterrupt:
+ 		# Useless I know, but added it in case it's used
+ 		# in the future for cleanup tasks
+-		print "\nCleaning up"
++#		print "\nCleaning up"
+ 		sys.exit(0)

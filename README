@@ -7,17 +7,18 @@ Tim Rupp. Available from:
 
 	svn co http://caphrim.net/svn/fermi/aerrate/trunk aerrate
 
-And issuing the following script:
+Then apply the latest patch from patches/:
+
+	patch -p0 < patches/aerrate-changes-dag-TIMESTAMP.diff
+
+And issue the following command to scrape the RHN website for the most up-to-date
+advisories:
 
 	cd aerrate
-	for release in rh{el4,el3,21}{as,es,ws} rh-desktop-{4,3} rh21aw rhel{4,3}-extras rhel3{cluster,devsuite} rhshas; do
-		echo "== $release =="
-		python ./aerrate.py -r --source=site --type=all --release=$release
-	done
+	./aerrate.py -r --source=site --type=all --release=enterprise
 	cd -
 
 This will copy all errata as XML files into ./aerrata/advisories/
-
 
 USING SARAH
 ^^^^^^^^^^^
@@ -26,7 +27,7 @@ making a symlink from aerrate/advisories to ./advisories is probably easiest.
 
 	ln -sf aerrate/advisories .
 
-Then to create an sqlite database out of these XML files, run:
+Then create an sqlite database out of these XML files, by doing:
 
 	./sarahdb.py
 
@@ -37,7 +38,8 @@ To create some statistics from this database, use:
 
 The sarahinfo utility currently shows how to query the database. Not all
 information is currently available in the XML files. Red Hat will be releasing
-these XML files in the future with much more info.
+these XML files in the future with more information we can get out of the 
+RHN website.
 
 I also added sarahsql to allow to query the database on the commandline, you
 can do queries in bash, like:

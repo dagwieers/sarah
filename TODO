@@ -1,7 +1,10 @@
 aerrate.py: scrapes rhn advisory information
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+ Allow to list a number of releases (eg. --release=rhel4as,rhel3as,rhel2.1as)
-+ Make aerrate smart about advisories already scraped (recently)
++ Fix file-element syntax to match new RHN xml output
++ Fix reference-element syntax to match new RHN xml output
++ Add bugzilla references and bugzilla reference synopsis information
++ Add references to RHBA and RHEA as well
++ Fix the problem with RHBA-2004-470.xml (aerrate freezes)
 + Use timestamp and HTTP HEAD requests to check for updates
 + Parallelize the download process (use HTTP Pipelining and use
   eg. 4 connections)

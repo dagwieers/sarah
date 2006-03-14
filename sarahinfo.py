@@ -56,8 +56,8 @@ for key in keys:
 	if key in ('2.1AS', '2.1ES', '2.1WS', '2.1AW'):
 		print '%s: %s  ' % (key, count[key]),
 		continue
-	### FIXME: aerrate should rename 3desktop to 3Desktop
-	elif key in ('3AS', '3ES', '3WS', '3Desktop', '3desktop'):
+	### FIXME: aerrate should rename 3desktop to 3Desktop (patched)
+	elif key in ('3AS', '3ES', '3WS', '3Desktop'):
 		print '%s: %s  ' % (key, count[key]),
 		continue
 	elif key in ('4AS', '4ES', '4WS', '4Desktop'):
