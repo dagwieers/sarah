@@ -10,13 +10,13 @@ sys.stdout = os.fdopen(1, 'w', 0)
 def elattr(ro, at, fail=True):
 	ret = ro.get(at)
 	if not ret and fail:
-		raise Exception, 'Attribute %s not found in element %s ' % (at, ro)
+		raise Exception, 'elattr: Attribute %s not found in element %s ' % (at, ro)
 	return ret
 
 def findel(ro, el, fail=True):
 	ret = ro.findtext(el)
 	if not ret and fail:
-		raise Exception, 'Element %s not found in root %s ' % (el, ro)
+		raise Exception, 'findel: Element %s not found in root %s ' % (el, ro)
 	return ret
 
 def findelattr(ro, el, at, fail=True):
@@ -24,24 +24,25 @@ def findelattr(ro, el, at, fail=True):
 		ret = root.find(el).get(at)
 	except:
 		if fail:
-			raise Exception, 'Element %s not found in root %s ' % (el, ro)
+			raise Exception, 'findelattr: Element %s not found in root %s ' % (el, ro)
 		return None
 	if not ret and fail:
-		raise Exception, 'Attribute %s not found in element %s ' % (at, el)
+		raise Exception, 'findelattr: Attribute %s not found in element %s ' % (at, el)
 	return ret
 
 def find(ro, el, fail=False):
 	ret = ro.find(el)
 	if not ret:
 		if fail:
-			raise Exception, 'Element %s not found in root %s ' % (el, ro)
+			raise Exception, 'find: Element %s not found in root %s ' % (el, ro)
 		return []
 	return ret
+
 def findall(ro, el, fail=False):
 	ret = ro.findall(el)
 	if not ret:
 		if fail:
-			raise Exception, 'Element list %s not found in root %s ' % (el, ro)
+			raise Exception, 'findall: Element list %s not found in root %s ' % (el, ro)
 		return []
 	return ret
 

@@ -8,13 +8,6 @@ from Tim Rupp. Available from:
 
 	svn co http://caphrim.net/svn/fermi/aerrate/trunk aerrate
 
-Then apply the latest patch from patches/:
-
-	patch -p0 < patches/aerrate-changes-dag-TIMESTAMP.diff
-
-Look inside the patch in order to check out the correct svn revision for
-the latest patch. Tim might have updated aerrate since my latest patch.
-
 And issue the following command to scrape the RHN website for the most
 up-to-date advisories:
 

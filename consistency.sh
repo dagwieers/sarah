@@ -8,6 +8,10 @@ echo "Advisories with HTML and severity in synopsis:"
 ./sarahsql.py 'select advid,synopsis from adv where synopsis glob "*:*" order by advid'
 echo
 
+echo "RPMs with no prodshort:"
+./sarahsql.py 'select a.advid from adv a, rpm r where a.advid = r.advid and r.prodshort = "None" order by a.advid'
+echo
+
 ### FIXME: These do not work ?
 #echo "Advisories with no rpms:"
 #./sarahsql.py 'select a.advid, synopsis from adv a where ( select count(r.advid) from adv a, rpm r where r.advid = a.advid ) = 0.0'

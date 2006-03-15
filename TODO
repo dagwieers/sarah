@@ -4,7 +4,7 @@ aerrate.py: scrapes rhn advisory information
 + Fix reference-element syntax to match new RHN xml output
 + Add bugzilla references and bugzilla reference synopsis information
 + Add references to RHBA and RHEA as well
-+ Fix the problem with RHBA-2004-470.xml (aerrate freezes)
++ Add keywords to advisories
 + Use timestamp and HTTP HEAD requests to check for updates
 + Parallelize the download process (use HTTP Pipelining and use
   eg. 4 connections)
