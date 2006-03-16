@@ -21,6 +21,10 @@ echo
 #./sarahsql.py 'select a.advid, synopsis from adv a where ( select count(*) from adv a, ref r where r.advid = a.advid ) = NULL'
 #echo
 
+#echo "Show non-unique filenames"
+#echo "Show non-unique md5s"
+#echo "Show non-unique refids"
+
 echo -n "Number of advisories in adv: "
 ./sarahsql.py 'select distinct advid from adv' | wc -l
 echo -n "Number of advisories in rpm: "

@@ -12,10 +12,11 @@ headers = {
 }
 
 dataopts = {
-	'adv': { 'advid': 'unique primary key', },
-#	'ref': { 'reftype': 'unique primary key', },
-#	'rpm': { 'filename': 'unique primary key', },
-	'pro': { 'prodshort': 'unique primary key', },
+	'adv': { 'advid': 'unique primary key', 'pushcount': 'integer'},
+#	'ref': { 'refid': 'unique primary key', },
+#	'rpm': { 'filename': 'unique primary key', 'md5': 'unique'},
+#	'rpm': { 'filename': 'unique primary key',},
+	'pro': { 'prodshort': 'unique primary key', 'product': 'unique'},
 }
 
 
@@ -31,10 +32,10 @@ def sqlcreate(name):
 	'Return a database create SQL statement'
 	str = 'create table %s ( ' % name
 	for key in headers[name]:
-		ds = ''
 		if dataopts.has_key(name) and dataopts[name].has_key(key):
-			ds = dataopts[name][key]
-		str += '%s varchar(10) %s,' % (key, ds)
+			str += '%s %s,' % (key, dataopts[name][key])
+		else:
+			str += '%s varchar(10),' % key
 	return str.rstrip(', ') + ' )'
 
 #def sqlinsert(name):
@@ -52,8 +53,11 @@ def opendb():
 	return con, cur
 
 def createtb(cur, name, create=False):
-	try: cur.execute('drop table "%s"' % name)
-	except: pass
+	try:
+		cur.execute('drop table "%s"' % name)
+	except Exception, e: 
+#		print e
+		pass
 	cur.execute(sqlcreate(name))
 
 def insertrec(cur, name, rec):
