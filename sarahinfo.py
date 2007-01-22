@@ -71,8 +71,16 @@ print
 
 print 'Advisories per year:'
 print '  ',
-for year in ('2002', '2003', '2004', '2005', '2006'):
+for year in ('2002', '2003', '2004', '2005', '2006', '2007'):
 	cur.execute('select advid from adv where issued glob "*%s*"' % year)
+	print '%s: %s  ' % (year, len(cur.fetchall())),
+print
+print
+
+print 'Security advisories per year:'
+print '  ',
+for year in ('2002', '2003', '2004', '2005', '2006', '2007'):
+	cur.execute('select advid from adv where issued glob "*%s*" and type == "RHSA"' % year)
 	print '%s: %s  ' % (year, len(cur.fetchall())),
 print
 print

@@ -70,6 +70,12 @@ python only has the HTTPS GET method implemented. More information at:
 	https://devel.linux.duke.edu/bugzilla/show_bug.cgi?id=543
 	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/456195
 
+A work-around would be to set up an HTTP-tunnel over your proxy by using
+proxytunnel, and then create a dynamic forwarding over SSH. And use
+dante or tocks to socksify aerrate's requests.
+
+	http_proxy="" https_proxy="" dsocksify ./aerrate.py -r --source=site --type=all --release=enterprise
+
 
 MORE INFORMATION
 ^^^^^^^^^^^^^^^^
@@ -83,7 +89,9 @@ A live RSS feed to the latest security errata is available from:
 
 Some information and statistics from the Red Hat security team:
 
+	http://www.redhat.com/security/transparent/oval/
 	http://people.redhat.com/mjc/
+	http://people.redhat.com/mjc/oval/
 
 General security information:
 

@@ -53,6 +53,16 @@ sarahlib.createtb(cur, 'rpm')
 sarahlib.createtb(cur, 'pro')
 
 filelist = glob.glob('advisories/RH?A-*.xml')
+if filelist:
+	print 'Using %s advisories from: ./advisories/' % len(filelist)
+else:
+	filelist = glob.glob('aerrate/advisories/RH?A-*.xml')
+if filelist:
+	print 'Using %s advisories from: ./advisories/' % len(filelist)
+else:
+	print >>sys.errout, 'error: No advisories found in ./advisories/ or ./aerrate/advisories/.'
+	sys.exit(1)
+
 #filelist = glob.glob('advisories/RHSA-*.xml')
 #filelist = ['advisories/RHSA-2005-791.xml', ]
 #filelist.sort()

@@ -1,7 +1,7 @@
 aerrate.py: scrapes rhn advisory information
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 + Fix file-element syntax to match new RHN xml output
-+ Fix reference-element syntax to match new RHN xml output
++ Fix self reference-element syntax to match new RHN xml output
 + Add bugzilla references and bugzilla reference synopsis information
 + Add references to RHBA and RHEA as well
 + Add keywords to advisories

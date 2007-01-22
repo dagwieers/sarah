@@ -1,5 +1,8 @@
 #!/bin/bash
 
+### This script checks the consistency of the sarahdb
+### Known problems with the RHSA content is listed per item
+
 echo "Advisories with unknown severity:"
 ./sarahsql.py 'select advid,severity from adv where type = "RHSA" and severity = "unknown" order by advid'
 echo
@@ -9,16 +12,16 @@ echo "Advisories with HTML and severity in synopsis:"
 echo
 
 echo "RPMs with no prodshort:"
-./sarahsql.py 'select a.advid from adv a, rpm r where a.advid = r.advid and r.prodshort = "None" order by a.advid'
+./sarahsql.py 'select adv.advid from adv, rpm where adv.advid = rpm.advid and rpm.prodshort = "None" order by adv.advid'
 echo
 
 ### FIXME: These do not work ?
 #echo "Advisories with no rpms:"
-#./sarahsql.py 'select a.advid, synopsis from adv a where ( select count(r.advid) from adv a, rpm r where r.advid = a.advid ) = 0.0'
+#./sarahsql.py 'select adv.advid, synopsis from adv where ( select count(rpm.advid) from adv, rpm where rpm.advid = adv.advid ) = 0.0'
 #echo
 
 #echo "Advisories with no refs:"
-#./sarahsql.py 'select a.advid, synopsis from adv a where ( select count(*) from adv a, ref r where r.advid = a.advid ) = NULL'
+#./sarahsql.py 'select adv.advid, synopsis from adv where ( select count(*) from adv, ref where ref.advid = adv.advid ) = NULL'
 #echo
 
 #echo "Show non-unique filenames"
