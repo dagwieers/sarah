@@ -118,18 +118,22 @@ for file in filelist:
 			refrec = { 'advid': advrec['advid'] }
 			refrec['reftype'] = elattr(refnode, 'type')
 			### FIXME: aerrate still implements the old format for reference information
-			refrec['reference'] = elattr(refnode, 'href', fail=False)
 
 			if refrec['reftype'] == 'self':
 				refrec['refid'] = advrec['advid']
+				refrec['reference'] = refnode.text
 			elif refnode.findtext('advisory'):
 				refrec['refid'] = findel(refnode, 'advisory')
+				refrec['reference'] = elattr(refnode, 'href')
 			elif refnode.findtext('bugzilla'):
 				refrec['refid'] = findel(refnode, 'bugzilla')
+				refrec['reference'] = elattr(refnode, 'href')
 			elif refnode.findtext('cve'):
 				refrec['refid'] = findel(refnode, 'cve')
+				refrec['reference'] = elattr(refnode, 'href')
 			elif refnode.findtext('self'):
 				refrec['refid'] = findel(refnode, 'self')
+				refrec['reference'] = elattr(refnode, 'href')
 			else:
 				refrec['refid'] = 'error'
 #				raise Exception, 'refid not found.'
