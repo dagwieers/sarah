@@ -63,6 +63,9 @@ for key in keys:
 	elif key in ('4AS', '4ES', '4WS', '4Desktop'):
 		print '%s: %s  ' % (key, count[key]),
 		continue
+	elif key in ('5Server', '5Client', '5Desktop'):
+		print '%s: %s  ' % (key, count[key]),
+		continue
 	else:
 		c[i] += count[key]
 print 'Other (%s): %s\n  ' % (j, c[j]),

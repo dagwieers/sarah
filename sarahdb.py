@@ -52,7 +52,7 @@ sarahlib.createtb(cur, 'ref')
 sarahlib.createtb(cur, 'rpm')
 sarahlib.createtb(cur, 'pro')
 
-filelist = glob.glob('advisories/RH?A-*.xml')
+filelist = glob.glob('advisories/RH?A-*.xml') + glob.glob('advisories.rhn/RH?A-*.xml')
 if filelist:
 	print 'Using %s advisories from: ./advisories/' % len(filelist)
 else:
@@ -122,6 +122,9 @@ for file in filelist:
 			if refrec['reftype'] == 'self':
 				refrec['refid'] = advrec['advid']
 				refrec['reference'] = refnode.text
+			elif refrec['reftype'] == 'external':
+				refrec['refid'] = advrec['advid']
+				refrec['reference'] = elattr(refnode, 'href')
 			elif refnode.findtext('advisory'):
 				refrec['refid'] = findel(refnode, 'advisory')
 				refrec['reference'] = elattr(refnode, 'href')
@@ -136,7 +139,7 @@ for file in filelist:
 				refrec['reference'] = elattr(refnode, 'href')
 			else:
 				refrec['refid'] = 'error'
-#				raise Exception, 'refid not found.'
+				raise Exception, 'refid not found for reftype %s.' % refrec['reftype']
 
 			refrec['summary'] = findel(refnode, 'summary', fail=False)
 

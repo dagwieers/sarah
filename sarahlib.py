@@ -1,4 +1,5 @@
-import os, sqlite, types
+import os, types
+import sqlite
 
 dbase = 'sarahdb.sqlite'
 

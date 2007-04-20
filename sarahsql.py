@@ -1,7 +1,9 @@
 #!/usr/bin/python
 
-import sys, os, sqlite, string
+import sys, os, string
+import sqlite
 import sarahlib
+
 
 sys.stdout = os.fdopen(1, 'w', 0)
 con, cur = sarahlib.opendb()
